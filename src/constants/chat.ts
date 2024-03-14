@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ChatInterface, ConfigInterface, ModelOptions } from '@type/chat';
+import { ChatInterface, ConfigInterface, MessageInterface, ModelOptions, TaskInterface } from '@type/chat';
 import useStore from '@store/store';
 
 const date = new Date();
@@ -125,6 +125,24 @@ export const _defaultChatConfig: ConfigInterface = {
   frequency_penalty: 0,
 };
 
+export const blankAssistentMessage: MessageInterface = {
+  role: 'assistant',
+  content: '',
+}
+
+export const generateDefaultTask = (
+  title?: string
+): TaskInterface => ({
+  system_messages: [{
+    role: 'system',
+    content: `You are a professional translator. 
+    Translate the given English text into Chinese,
+    or vise versa.`,
+  }],
+  user_message: undefined,
+  assistant_message: blankAssistentMessage,
+});
+
 export const generateDefaultChat = (
   title?: string,
   folder?: string
@@ -132,13 +150,17 @@ export const generateDefaultChat = (
   id: uuidv4(),
   title: title ? title : 'New Chat',
   messages:
-    useStore.getState().defaultSystemMessage.length > 0
-      ? [{ role: 'system', content: useStore.getState().defaultSystemMessage }]
-      : [],
+    // useStore.getState().defaultSystemMessage.length > 0
+    //   ? [{ role: 'system', content: useStore.getState().defaultSystemMessage }]
+    //   : [],
+    [],
   config: { ...useStore.getState().defaultChatConfig },
   titleSet: false,
+  isTask: true,
+  task: generateDefaultTask(),
   folder,
 });
+
 
 export const codeLanguageSubset = [
   'python',

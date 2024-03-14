@@ -9,6 +9,12 @@ export interface MessageInterface {
   content: string;
 }
 
+export interface TaskInterface {
+  system_messages: MessageInterface[];
+  user_message?: MessageInterface;
+  assistant_message: MessageInterface;
+}
+
 export interface ChatInterface {
   id: string;
   title: string;
@@ -16,6 +22,8 @@ export interface ChatInterface {
   messages: MessageInterface[];
   config: ConfigInterface;
   titleSet: boolean;
+  isTask: boolean;
+  task: TaskInterface;
 }
 
 export interface ConfigInterface {

@@ -14,7 +14,7 @@ const Chat = () => {
         hideSideMenu ? 'md:pl-0' : 'md:pl-[260px]'
       }`}
     >
-      <MobileBar />
+      {/* <MobileBar /> */}
       <main className='relative h-full w-full transition-width flex flex-col overflow-hidden items-stretch flex-1'>
         <ChatContent />
         <StopGeneratingButton />

@@ -9,6 +9,7 @@ import { ChatInterface } from '@type/chat';
 import PopupModal from '@components/PopupModal';
 import TokenCount from '@components/TokenCount';
 import CommandPrompt from '../CommandPrompt';
+import { blankAssistentMessage } from '@constants/chat';
 
 const EditView = ({
   content,
@@ -68,14 +69,18 @@ const EditView = ({
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
-    const updatedMessages = updatedChats[currentChatIndex].messages;
+    // const updatedMessages = updatedChats[currentChatIndex].messages;
+    const updatedTask = updatedChats[currentChatIndex].task;
+    console.log('handleSave: ', updatedTask)
     if (sticky) {
-      updatedMessages.push({ role: inputRole, content: _content });
-      _setContent('');
-      resetTextAreaHeight();
+      if (inputRole == 'user') {
+        updatedTask.user_message = { role: inputRole, content: _content };
+      }
+      // _setContent('');
+      // resetTextAreaHeight();
     } else {
-      updatedMessages[messageIndex].content = _content;
-      setIsEdit(false);
+      // updatedMessages[messageIndex].content = _content;
+      // setIsEdit(false);
     }
     setChats(updatedChats);
   };
@@ -86,19 +91,24 @@ const EditView = ({
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
-    const updatedMessages = updatedChats[currentChatIndex].messages;
+    // const updatedMessages = updatedChats[currentChatIndex].messages;
+    const updatedTask = updatedChats[currentChatIndex].task;
     if (sticky) {
       if (_content !== '') {
-        updatedMessages.push({ role: inputRole, content: _content });
+        // updatedMessages.push({ role: inputRole, content: _content });
+        if (inputRole == 'user') {
+          updatedTask.user_message = { role: inputRole, content: _content };
+          updatedTask.assistant_message = blankAssistentMessage;
+        }
       }
-      _setContent('');
-      resetTextAreaHeight();
+      // _setContent('');
+      // resetTextAreaHeight();
     } else {
-      updatedMessages[messageIndex].content = _content;
-      updatedChats[currentChatIndex].messages = updatedMessages.slice(
-        0,
-        messageIndex + 1
-      );
+      // updatedMessages[messageIndex].content = _content;
+      // updatedChats[currentChatIndex].messages = updatedMessages.slice(
+      //   0,
+      //   messageIndex + 1
+      // );
       setIsEdit(false);
     }
     setChats(updatedChats);

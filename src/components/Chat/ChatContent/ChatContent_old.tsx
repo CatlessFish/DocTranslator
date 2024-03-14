@@ -19,9 +19,9 @@ const ChatContent = () => {
   const setError = useStore((state) => state.setError);
   const messages = useStore((state) =>
     state.chats &&
-    state.chats.length > 0 &&
-    state.currentChatIndex >= 0 &&
-    state.currentChatIndex < state.chats.length
+      state.chats.length > 0 &&
+      state.currentChatIndex >= 0 &&
+      state.currentChatIndex < state.chats.length
       ? state.chats[state.currentChatIndex].messages
       : []
   );
@@ -37,9 +37,9 @@ const ChatContent = () => {
 
   const stickyIndex = useStore((state) =>
     state.chats &&
-    state.chats.length > 0 &&
-    state.currentChatIndex >= 0 &&
-    state.currentChatIndex < state.chats.length
+      state.chats.length > 0 &&
+      state.currentChatIndex >= 0 &&
+      state.currentChatIndex < state.chats.length
       ? state.chats[state.currentChatIndex].messages.length
       : 0
   );
@@ -66,37 +66,34 @@ const ChatContent = () => {
       >
         <ScrollToBottomButton />
         <div className='flex flex-col items-center text-sm dark:bg-gray-800'>
-          {
-            task.user_message ?
-              <Message
-                role={task.user_message.role}
-                content={task.user_message.content}
-                messageIndex={stickyIndex}
-                sticky
-              />
-              :
-              <Message
-                role={inputRole}
-                content=''
-                messageIndex={stickyIndex}
-                sticky
-              />
-          }
+          {/* TODO: re-construct 'chat.messages'. one input, one output. */}
+          <Message
+            role={inputRole}
+            content=''
+            messageIndex={stickyIndex}
+            sticky
+          />
 
           <div
             className='flex flex-col items-center text-sm dark:bg-gray-800 w-full'
             ref={saveRef}
           >
-            {
-              task.assistant_message.content !== '' ?
-                <Message
-                  role={task.assistant_message.role}
-                  content={task.assistant_message.content}
-                  messageIndex={1}
-                />
-                :
-                <div />
-            }
+            {advancedMode && <ChatTitle />}
+            {/* {!generating && advancedMode && messages?.length === 0 && (
+              <NewMessageButton messageIndex={-1} />
+            )} */}
+            {messages?.map((message, index) => (
+              (advancedMode || index !== 0 || message.role !== 'system') && (
+                <React.Fragment key={index}>
+                  <Message
+                    role={message.role}
+                    content={message.content}
+                    messageIndex={index}
+                  />
+                  {/* {!generating && advancedMode && <NewMessageButton messageIndex={index} />} */}
+                </React.Fragment>
+              )
+            ))}
           </div>
 
 
@@ -116,11 +113,10 @@ const ChatContent = () => {
             </div>
           )}
           <div
-            className={`mt-4 w-full m-auto  ${
-              hideSideMenu
+            className={`mt-4 w-full m-auto  ${hideSideMenu
                 ? 'md:max-w-5xl lg:max-w-5xl xl:max-w-6xl'
                 : 'md:max-w-3xl lg:max-w-3xl xl:max-w-4xl'
-            }`}
+              }`}
           >
             {useStore.getState().generating || (
               <div className='md:w-[calc(100%-50px)] flex gap-4 flex-wrap justify-center'>
@@ -137,4 +133,4 @@ const ChatContent = () => {
   );
 };
 
-export default ChatContent;
+// export default ChatContent;
