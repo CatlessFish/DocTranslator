@@ -79,7 +79,7 @@ const useSubmit = () => {
       ]
     )
 
-    console.log('handleSubmit: ', chats[currentChatIndex].task)
+    console.log('[handleSubmit] Curr task: ', chats[currentChatIndex].task)
 
     try {
       let stream;
@@ -153,6 +153,7 @@ const useSubmit = () => {
             const updatedTask = updatedChats[currentChatIndex].task;
             updatedTask.assistant_message.content += resultString;
             setChats(updatedChats);
+            console.log('[handleSubmit] Updated task: ', updatedChats[currentChatIndex].task);
           }
         }
         if (useStore.getState().generating) {

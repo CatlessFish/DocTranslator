@@ -136,8 +136,8 @@ export const generateDefaultTask = (
   system_messages: [{
     role: 'system',
     content: `You are a professional translator. 
-    Translate the given English text into Chinese,
-    or vise versa.`,
+    Translate the given English text into Chinese or vise versa.
+    Answer in Markdown.`,
   }],
   user_message: undefined,
   assistant_message: blankAssistentMessage,

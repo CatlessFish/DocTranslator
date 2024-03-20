@@ -46,14 +46,15 @@ const CommandPrompt = ({
         aria-label='prompt library'
         onClick={() => setDropDown(!dropDown)}
       >
-        /
+        编辑Prompt
       </button>
       <div
         className={`${
           dropDown ? '' : 'hidden'
         } absolute top-100 bottom-100 right-0 z-10 bg-white rounded-lg shadow-xl border-b border-black/10 dark:border-gray-900/50 text-gray-800 dark:text-gray-100 group dark:bg-gray-800 opacity-90`}
       >
-        <div className='text-sm px-4 py-2 w-max'>{t('promptLibrary')}</div>
+        <div className='text-sm px-4 py-2 w-max'>{'待实现'}</div>
+        {/* <div className='text-sm px-4 py-2 w-max'>{t('promptLibrary')}</div>
         <input
           ref={inputRef}
           type='text'
@@ -77,7 +78,7 @@ const CommandPrompt = ({
               {cp.name}
             </li>
           ))}
-        </ul>
+        </ul> */}
       </div>
     </div>
   );

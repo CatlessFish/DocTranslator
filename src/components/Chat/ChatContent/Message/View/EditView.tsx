@@ -27,6 +27,7 @@ const EditView = ({
   const currentChatIndex = useStore((state) => state.currentChatIndex);
 
   const [_content, _setContent] = useState<string>(content);
+  // console.log('[EditView]: content=', content, ' _content=', _content);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const textareaRef = React.createRef<HTMLTextAreaElement>();
 

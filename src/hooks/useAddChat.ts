@@ -21,6 +21,7 @@ const useAddChat = () => {
 
       updatedChats.unshift(generateDefaultChat(title, folder));
       setChats(updatedChats);
+      console.log('[useAddChat] updatedChats:', updatedChats);
       setCurrentChatIndex(0);
     }
   };

@@ -150,8 +150,8 @@ const ContentView = memo(
 
               <MarkdownModeButton />
               <CopyButton onClick={handleCopy} />
-              <EditButton setIsEdit={setIsEdit} />
-              <DeleteButton setIsDelete={setIsDelete} />
+              {/* <EditButton setIsEdit={setIsEdit} /> */}
+              {/* <DeleteButton setIsDelete={setIsDelete} /> */}
             </>
           )}
           {isDelete && (
