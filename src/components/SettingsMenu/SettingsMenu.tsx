@@ -45,16 +45,16 @@ const SettingsMenu = () => {
             <LanguageSelector />
             <ThemeSwitcher />
             <div className='flex flex-col gap-3'>
-              <AutoTitleToggle />
+              {/* <AutoTitleToggle /> */}
               <EnterToSubmitToggle />
-              <InlineLatexToggle />
-              <AdvancedModeToggle />
-              <TotalTokenCostToggle />
+              {/* <InlineLatexToggle /> */}
+              {/* <AdvancedModeToggle /> */}
+              {/* <TotalTokenCostToggle /> */}
             </div>
             <ClearConversation />
             <PromptLibraryMenu />
             <ChatConfigMenu />
-            <TotalTokenCost />
+            {/* <TotalTokenCost /> */}
           </div>
         </PopupModal>
       )}

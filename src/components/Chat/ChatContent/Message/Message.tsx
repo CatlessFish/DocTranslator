@@ -5,7 +5,6 @@ import Avatar from './Avatar';
 import MessageContent from './MessageContent';
 
 import { Role } from '@type/chat';
-import RoleSelector from './RoleSelector';
 
 // const backgroundStyle: { [role in Role]: string } = {
 //   user: 'dark:bg-gray-800',
@@ -44,12 +43,12 @@ const Message = React.memo(
         >
           <Avatar role={role} />
           <div className='w-[calc(100%-50px)] '>
-            {advancedMode &&
+            {/* {advancedMode &&
               <RoleSelector
                 role={role}
                 messageIndex={messageIndex}
                 sticky={sticky}
-              />}
+              />} */}
             <MessageContent
               role={role}
               content={content}

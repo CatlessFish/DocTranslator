@@ -20,38 +20,6 @@ const useSubmit = () => {
   const currentChatIndex = useStore((state) => state.currentChatIndex);
   const setChats = useStore((state) => state.setChats);
 
-  const generateTitle = async (
-    message: MessageInterface[]
-  ): Promise<string> => {
-    let data;
-    try {
-      if (!apiKey || apiKey.length === 0) {
-        // official endpoint
-        if (apiEndpoint === officialAPIEndpoint) {
-          throw new Error(t('noApiKeyWarning') as string);
-        }
-
-        // other endpoints
-        data = await getChatCompletion(
-          useStore.getState().apiEndpoint,
-          message,
-          _defaultChatConfig
-        );
-      } else if (apiKey) {
-        // own apikey
-        data = await getChatCompletion(
-          useStore.getState().apiEndpoint,
-          message,
-          _defaultChatConfig,
-          apiKey
-        );
-      }
-    } catch (error: unknown) {
-      throw new Error(`Error generating title!\n${(error as Error).message}`);
-    }
-    return data.choices[0].message.content;
-  };
-
   const handleSubmit = async () => {
     const chats = useStore.getState().chats;
     if (generating || !chats) return;
@@ -79,7 +47,7 @@ const useSubmit = () => {
       ]
     )
 
-    console.log('[handleSubmit] Curr task: ', chats[currentChatIndex].task)
+    console.debug('[handleSubmit] Curr task: ', chats[currentChatIndex].task)
 
     try {
       let stream;
@@ -153,7 +121,7 @@ const useSubmit = () => {
             const updatedTask = updatedChats[currentChatIndex].task;
             updatedTask.assistant_message.content += resultString;
             setChats(updatedChats);
-            console.log('[handleSubmit] Updated task: ', updatedChats[currentChatIndex].task);
+            console.debug('[handleSubmit] Updated task: ', updatedChats[currentChatIndex].task);
           }
         }
         if (useStore.getState().generating) {
@@ -180,43 +148,6 @@ const useSubmit = () => {
         );
       }
 
-      // generate title for new chats
-      // if (
-      //   useStore.getState().autoTitle &&
-      //   currChats &&
-      //   !currChats[currentChatIndex]?.titleSet
-      // ) {
-      //   const messages_length = currChats[currentChatIndex].messages.length;
-      //   const assistant_message =
-      //     currChats[currentChatIndex].messages[messages_length - 1].content;
-      //   const user_message =
-      //     currChats[currentChatIndex].messages[messages_length - 2].content;
-
-      //   const message: MessageInterface = {
-      //     role: 'user',
-      //     content: `Generate a title in less than 6 words for the following message (language: ${i18n.language}):\n"""\nUser: ${user_message}\nAssistant: ${assistant_message}\n"""`,
-      //   };
-
-      //   let title = (await generateTitle([message])).trim();
-      //   if (title.startsWith('"') && title.endsWith('"')) {
-      //     title = title.slice(1, -1);
-      //   }
-      //   const updatedChats: ChatInterface[] = JSON.parse(
-      //     JSON.stringify(useStore.getState().chats)
-      //   );
-      //   updatedChats[currentChatIndex].title = title;
-      //   updatedChats[currentChatIndex].titleSet = true;
-      //   setChats(updatedChats);
-
-      //   // update tokens used for generating title
-      //   if (countTotalTokens) {
-      //     const model = _defaultChatConfig.model;
-      //     updateTotalTokenUsed(model, [message], {
-      //       role: 'assistant',
-      //       content: title,
-      //     });
-      //   }
-      // }
     } catch (e: unknown) {
       console.log(e)
       const err = (e as Error).message;

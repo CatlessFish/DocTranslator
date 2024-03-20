@@ -27,7 +27,6 @@ const EditView = ({
   const currentChatIndex = useStore((state) => state.currentChatIndex);
 
   const [_content, _setContent] = useState<string>(content);
-  // console.log('[EditView]: content=', content, ' _content=', _content);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const textareaRef = React.createRef<HTMLTextAreaElement>();
 
@@ -70,18 +69,11 @@ const EditView = ({
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
-    // const updatedMessages = updatedChats[currentChatIndex].messages;
     const updatedTask = updatedChats[currentChatIndex].task;
-    console.log('handleSave: ', updatedTask)
-    if (sticky) {
-      if (inputRole == 'user') {
-        updatedTask.user_message = { role: inputRole, content: _content };
-      }
-      // _setContent('');
-      // resetTextAreaHeight();
-    } else {
-      // updatedMessages[messageIndex].content = _content;
-      // setIsEdit(false);
+    console.debug('[EditView] updated task:', updatedTask);
+
+    if (sticky && inputRole == 'user') {
+      updatedTask.user_message = { role: inputRole, content: _content };
     }
     setChats(updatedChats);
   };
@@ -92,28 +84,15 @@ const EditView = ({
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
-    // const updatedMessages = updatedChats[currentChatIndex].messages;
     const updatedTask = updatedChats[currentChatIndex].task;
-    if (sticky) {
-      if (_content !== '') {
-        // updatedMessages.push({ role: inputRole, content: _content });
-        if (inputRole == 'user') {
-          updatedTask.user_message = { role: inputRole, content: _content };
-          updatedTask.assistant_message = blankAssistentMessage;
-        }
-      }
-      // _setContent('');
-      // resetTextAreaHeight();
-    } else {
-      // updatedMessages[messageIndex].content = _content;
-      // updatedChats[currentChatIndex].messages = updatedMessages.slice(
-      //   0,
-      //   messageIndex + 1
-      // );
-      setIsEdit(false);
+    if (sticky && inputRole == 'user' && _content !== '') {
+      updatedTask.user_message = { role: inputRole, content: _content };
+      updatedTask.assistant_message = blankAssistentMessage;
     }
     setChats(updatedChats);
-    handleSubmit();
+    if (_content !== '') {
+      handleSubmit();
+    }
   };
 
   useEffect(() => {
@@ -129,6 +108,10 @@ const EditView = ({
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, []);
+
+  useEffect(() => {
+    _setContent(content);
+  }, [content]);
 
   return (
     <>

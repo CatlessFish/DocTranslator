@@ -47,8 +47,6 @@ const ContentView = memo(
   }) => {
     const { handleSubmit } = useSubmit();
 
-    const [isDelete, setIsDelete] = useState<boolean>(false);
-
     const currentChatIndex = useStore((state) => state.currentChatIndex);
     const setChats = useStore((state) => state.setChats);
     const lastMessageIndex = useStore((state) =>
@@ -56,38 +54,6 @@ const ContentView = memo(
     );
     const inlineLatex = useStore((state) => state.inlineLatex);
     const markdownMode = useStore((state) => state.markdownMode);
-
-    const handleDelete = () => {
-      const updatedChats: ChatInterface[] = JSON.parse(
-        JSON.stringify(useStore.getState().chats)
-      );
-      updatedChats[currentChatIndex].messages.splice(messageIndex, 1);
-      setChats(updatedChats);
-    };
-
-    const handleMove = (direction: 'up' | 'down') => {
-      const updatedChats: ChatInterface[] = JSON.parse(
-        JSON.stringify(useStore.getState().chats)
-      );
-      const updatedMessages = updatedChats[currentChatIndex].messages;
-      const temp = updatedMessages[messageIndex];
-      if (direction === 'up') {
-        updatedMessages[messageIndex] = updatedMessages[messageIndex - 1];
-        updatedMessages[messageIndex - 1] = temp;
-      } else {
-        updatedMessages[messageIndex] = updatedMessages[messageIndex + 1];
-        updatedMessages[messageIndex + 1] = temp;
-      }
-      setChats(updatedChats);
-    };
-
-    const handleMoveUp = () => {
-      handleMove('up');
-    };
-
-    const handleMoveDown = () => {
-      handleMove('down');
-    };
 
     const handleRefresh = () => {
       const updatedChats: ChatInterface[] = JSON.parse(
@@ -136,40 +102,16 @@ const ContentView = memo(
           )}
         </div>
         <div className='flex justify-end gap-2 w-full mt-2'>
-          {isDelete || (
+          {(
             <>
               {!useStore.getState().generating &&
                 role === 'assistant' &&
                 messageIndex === lastMessageIndex && (
                   <RefreshButton onClick={handleRefresh} />
                 )}
-              {/* {messageIndex !== 0 && <UpButton onClick={handleMoveUp} />}
-              {messageIndex !== lastMessageIndex && (
-                <DownButton onClick={handleMoveDown} />
-              )} */}
 
               <MarkdownModeButton />
               <CopyButton onClick={handleCopy} />
-              {/* <EditButton setIsEdit={setIsEdit} /> */}
-              {/* <DeleteButton setIsDelete={setIsDelete} /> */}
-            </>
-          )}
-          {isDelete && (
-            <>
-              <button
-                className='p-1 hover:text-white'
-                aria-label='cancel'
-                onClick={() => setIsDelete(false)}
-              >
-                <CrossIcon />
-              </button>
-              <button
-                className='p-1 hover:text-white'
-                aria-label='confirm'
-                onClick={handleDelete}
-              >
-                <TickIcon />
-              </button>
             </>
           )}
         </div>
