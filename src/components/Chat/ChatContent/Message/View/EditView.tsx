@@ -10,6 +10,7 @@ import PopupModal from '@components/PopupModal';
 import TokenCount from '@components/TokenCount';
 import CommandPrompt from '../CommandPrompt';
 import { blankAssistentMessage } from '@constants/chat';
+import { promptConstruct } from '@src/prompting/promtConstruct';
 
 const EditView = ({
   content,
@@ -58,23 +59,23 @@ const EditView = ({
           handleGenerate();
           resetTextAreaHeight();
         } else {
-          handleSave();
+          handlePreview();
         }
       }
     }
   };
 
-  const handleSave = () => {
+  const handlePreview = () => {
     if (sticky && (_content === '' || useStore.getState().generating)) return;
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
     const updatedTask = updatedChats[currentChatIndex].task;
-    console.debug('[EditView] updated task:', updatedTask);
-
     if (sticky && inputRole == 'user') {
-      updatedTask.user_message = { role: inputRole, content: _content };
+      updatedTask.user_text = _content;
     }
+    updatedChats[currentChatIndex].messages = promptConstruct(updatedTask);
+    console.log('[handlePreview] Updated messages: ', updatedChats[currentChatIndex].messages);
     setChats(updatedChats);
   };
 
@@ -86,8 +87,7 @@ const EditView = ({
     );
     const updatedTask = updatedChats[currentChatIndex].task;
     if (sticky && inputRole == 'user' && _content !== '') {
-      updatedTask.user_message = { role: inputRole, content: _content };
-      updatedTask.assistant_message = blankAssistentMessage;
+      updatedTask.user_text = _content;
     }
     setChats(updatedChats);
     if (_content !== '') {
@@ -137,7 +137,7 @@ const EditView = ({
       <EditViewButtons
         sticky={sticky}
         handleGenerate={handleGenerate}
-        handleSave={handleSave}
+        handlePreview={handlePreview}
         setIsModalOpen={setIsModalOpen}
         setIsEdit={setIsEdit}
         _setContent={_setContent}
@@ -158,14 +158,14 @@ const EditViewButtons = memo(
   ({
     sticky = false,
     handleGenerate,
-    handleSave,
+    handlePreview,
     setIsModalOpen,
     setIsEdit,
     _setContent,
   }: {
     sticky?: boolean;
     handleGenerate: () => void;
-    handleSave: () => void;
+      handlePreview: () => void;
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
     _setContent: React.Dispatch<React.SetStateAction<string>>;
@@ -212,11 +212,11 @@ const EditViewButtons = memo(
                   }`
                 : 'btn-neutral'
             }`}
-            onClick={handleSave}
-            aria-label={t('save') as string}
+            onClick={handlePreview}
+            aria-label={t('preview') as string}
           >
             <div className='flex items-center justify-center gap-2'>
-              {t('save')}
+              {t('preview')}
             </div>
           </button>
 

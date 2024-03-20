@@ -63,20 +63,12 @@ const ChatContent = () => {
         <ScrollToBottomButton />
         <div className='flex flex-col items-center text-sm dark:bg-gray-800'>
           {
-            task.user_message ?
-              <Message
-                role={task.user_message.role}
-                content={task.user_message.content}
-                messageIndex={stickyIndex}
-                sticky
-              />
-              :
-              <Message
-                role={inputRole}
-                content=''
-                messageIndex={stickyIndex}
-                sticky
-              />
+            <Message
+              role={'user'}
+              content={task.user_text}
+              messageIndex={stickyIndex}
+              sticky
+            />
           }
 
           <div
@@ -84,10 +76,10 @@ const ChatContent = () => {
             ref={saveRef}
           >
             {
-              task.assistant_message.content !== '' ?
+              task.result_text !== '' ?
                 <Message
-                  role={task.assistant_message.role}
-                  content={task.assistant_message.content}
+                  role={'assistant'}
+                  content={task.result_text}
                   messageIndex={1}
                 />
                 :

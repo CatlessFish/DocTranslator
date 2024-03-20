@@ -17,6 +17,7 @@ export default defineConfig({
       '@components/': new URL('./src/components/', import.meta.url).pathname,
       '@utils/': new URL('./src/utils/', import.meta.url).pathname,
       '@src/': new URL('./src/', import.meta.url).pathname,
+      '@prompting/': new URL('./src/prompting/', import.meta.url).pathname,
     },
   },
   base: './',

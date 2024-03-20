@@ -25,7 +25,12 @@
       "@api/*": ["./src/api/*"],
       "@components/*": ["./src/components/*"],
       "@utils/*": ["./src/utils/*"],
-      "@src/*": ["./src/*"]
+      "@src/*": [
+        "./src/*"
+      ],
+      "@prompting/*": [
+        "./src/prompting/*"
+      ],
     }
   },
   "include": ["src", "electron/index.cjs"],

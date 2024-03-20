@@ -8,6 +8,7 @@ import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig, blankAssistentMessage } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
 import { isUndefined } from 'lodash';
+import { promptConstruct } from '@src/prompting/promtConstruct';
 
 const useSubmit = () => {
   const { t, i18n } = useTranslation('api');
@@ -24,30 +25,13 @@ const useSubmit = () => {
     const chats = useStore.getState().chats;
     if (generating || !chats) return;
 
+    chats[currentChatIndex].task.result_text = '';
+    const constructedMessages = promptConstruct(chats[currentChatIndex].task);
+
     const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-
-    // updatedChats[currentChatIndex].messages.push({
-    //   role: 'assistant',
-    //   content: '',
-    // });
-    updatedChats[currentChatIndex].task.assistant_message = blankAssistentMessage;
-
+    updatedChats[currentChatIndex].messages = constructedMessages;
     setChats(updatedChats);
     setGenerating(true);
-
-    const MsgOrNone = (msg: MessageInterface | undefined): MessageInterface[] => (
-      isUndefined(msg) ? [] : [msg]
-    )
-
-    const TaskMsgList = (task: TaskInterface): MessageInterface[] => (
-      [
-        ...task.system_messages,
-        ...MsgOrNone(task.user_message),
-        ...MsgOrNone(task.assistant_message),
-      ]
-    )
-
-    console.debug('[handleSubmit] Curr task: ', chats[currentChatIndex].task)
 
     try {
       let stream;
@@ -56,11 +40,12 @@ const useSubmit = () => {
 
       const messages = limitMessageTokens(
         // chats[currentChatIndex].messages,
-        TaskMsgList(chats[currentChatIndex].task),
+        constructedMessages,
         chats[currentChatIndex].config.max_tokens,
         chats[currentChatIndex].config.model
       );
       if (messages.length === 0) throw new Error('Message exceed max token!');
+      console.debug('[handleSubmit] Submitting Messages: ', messages);
 
       // no api key (free)
       if (!apiKey || apiKey.length === 0) {
@@ -116,12 +101,13 @@ const useSubmit = () => {
             const updatedChats: ChatInterface[] = JSON.parse(
               JSON.stringify(useStore.getState().chats)
             );
-            // const updatedMessages = updatedChats[currentChatIndex].messages;
-            // updatedMessages[updatedMessages.length - 1].content += resultString;
             const updatedTask = updatedChats[currentChatIndex].task;
-            updatedTask.assistant_message.content += resultString;
+            updatedTask.result_text += resultString;
+
+            const updatedMessages = updatedChats[currentChatIndex].messages;
+            updatedMessages[updatedMessages.length - 1].content += resultString;
             setChats(updatedChats);
-            console.debug('[handleSubmit] Updated task: ', updatedChats[currentChatIndex].task);
+            // console.debug('[handleSubmit] Updated task: ', updatedChats[currentChatIndex].task);
           }
         }
         if (useStore.getState().generating) {
@@ -139,8 +125,7 @@ const useSubmit = () => {
 
       if (currChats && countTotalTokens) {
         const model = currChats[currentChatIndex].config.model;
-        // const messages = currChats[currentChatIndex].messages;
-        const messages = TaskMsgList(chats[currentChatIndex].task);
+        const messages = currChats[currentChatIndex].messages;
         updateTotalTokenUsed(
           model,
           messages.slice(0, -1),

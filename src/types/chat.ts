@@ -10,9 +10,9 @@ export interface MessageInterface {
 }
 
 export interface TaskInterface {
-  system_messages: MessageInterface[];
-  user_message?: MessageInterface;
-  assistant_message: MessageInterface;
+  user_text: string;
+  result_text: string;
+  // Other fields such as user dictionary
 }
 
 export interface ChatInterface {
@@ -22,7 +22,6 @@ export interface ChatInterface {
   messages: MessageInterface[];
   config: ConfigInterface;
   titleSet: boolean;
-  isTask: boolean;
   task: TaskInterface;
 }
 

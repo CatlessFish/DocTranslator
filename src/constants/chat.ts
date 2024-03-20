@@ -10,12 +10,10 @@ const dateString =
   '-' +
   ('0' + date.getDate()).slice(-2);
 
-// default system message obtained using the following method: https://twitter.com/DeminDimin/status/1619935545144279040
 export const _defaultSystemMessage =
   import.meta.env.VITE_DEFAULT_SYSTEM_MESSAGE ??
-  `You are ChatGPT, a large language model trained by OpenAI.
-Carefully heed the user's instructions. 
-Respond using Markdown.`;
+  `You are a professional translator. You are asked to translate the following Chinese text into English or vice versa.\
+The translation should be accurate and natural. Respond in Markdown`;
 
 export const modelOptions: ModelOptions[] = [
   'gpt-3.5-turbo',
@@ -130,17 +128,9 @@ export const blankAssistentMessage: MessageInterface = {
   content: '',
 }
 
-export const generateDefaultTask = (
-  title?: string
-): TaskInterface => ({
-  system_messages: [{
-    role: 'system',
-    content: `You are a professional translator. 
-    Translate the given English text into Chinese or vise versa.
-    Answer in Markdown.`,
-  }],
-  user_message: undefined,
-  assistant_message: blankAssistentMessage,
+export const generateDefaultTask = (): TaskInterface => ({
+  user_text: '',
+  result_text: '',
 });
 
 export const generateDefaultChat = (
@@ -156,7 +146,6 @@ export const generateDefaultChat = (
     [],
   config: { ...useStore.getState().defaultChatConfig },
   titleSet: false,
-  isTask: true,
   task: generateDefaultTask(),
   folder,
 });
