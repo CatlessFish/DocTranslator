@@ -11,7 +11,6 @@ import CrossIcon from '@icon/CrossIcon';
 import useSubmit from '@hooks/useSubmit';
 import DownloadChat from './DownloadChat';
 import CloneChat from './CloneChat';
-import ShareGPT from '@components/ShareGPT';
 import { generateDefaultTask } from '@constants/chat';
 
 const ChatContent = () => {
