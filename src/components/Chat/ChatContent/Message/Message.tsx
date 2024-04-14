@@ -30,19 +30,19 @@ const Message = React.memo(
 
     return (
       <div
-        className={`w-full border-b border-black/10 dark:border-gray-900/50 text-gray-800 dark:text-gray-100 group ${
+        className={`w-full h-full border-b border-black/10 dark:border-gray-900/50 text-gray-800 dark:text-gray-100 group ${
           backgroundStyle[messageIndex % 2]
         }`}
       >
         <div
-          className={`text-base gap-4 md:gap-6 m-auto p-4 md:py-6 flex transition-all ease-in-out ${
+          className={`text-base gap-4 md:gap-6 m-auto p-4 md:py-6 transition-all ease-in-out ${
             hideSideMenu
               ? 'md:max-w-5xl lg:max-w-5xl xl:max-w-6xl'
               : 'md:max-w-3xl lg:max-w-3xl xl:max-w-4xl'
           }`}
         >
-          <Avatar role={role} />
-          <div className='w-[calc(100%-50px)] '>
+          {/* <Avatar role={role} /> */}
+          <div className='w-full h-full'>
             {/* {advancedMode &&
               <RoleSelector
                 role={role}

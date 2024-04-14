@@ -60,33 +60,29 @@ const ChatContent = () => {
         className='h-full dark:bg-gray-800'
         followButtonClassName='hidden'
       >
-        <ScrollToBottomButton />
-        <div className='flex flex-col items-center text-sm dark:bg-gray-800'>
-          {
+        {/* <ScrollToBottomButton /> */}
+        <div className='flex items-center text-sm dark:bg-gray-800 h-full'>
+          <div className='w-full h-full'>
+            {/* Input area */}
             <Message
               role={'user'}
               content={task.user_text}
               messageIndex={stickyIndex}
               sticky
             />
-          }
-
-          <div
-            className='flex flex-col items-center text-sm dark:bg-gray-800 w-full'
-            ref={saveRef}
-          >
-            {
-              task.result_text !== '' ?
-                <Message
-                  role={'assistant'}
-                  content={task.result_text}
-                  messageIndex={1}
-                />
-                :
-                <div />
-            }
           </div>
 
+          <div className='w-full h-full'>
+            {/* Result area */}
+            {task.result_text !== '' ?
+              <Message
+                role={'assistant'}
+                content={task.result_text}
+                messageIndex={1}
+              />
+              :
+              <div />}
+          </div>
 
           {error !== '' && (
             <div className='relative py-2 px-3 w-3/5 mt-3 max-md:w-11/12 border rounded-md border-red-500 bg-red-500/10'>
@@ -103,7 +99,6 @@ const ChatContent = () => {
               </div>
             </div>
           )}
-          <div className='w-full h-36'></div>
         </div>
       </ScrollToBottom>
     </div>
