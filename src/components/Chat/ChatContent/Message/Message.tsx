@@ -35,7 +35,7 @@ const Message = React.memo(
         }`}
       >
         <div
-          className={`text-base gap-4 md:gap-6 m-auto p-4 md:py-6 transition-all ease-in-out ${
+          className={`h-full text-base gap-4 md:gap-6 m-auto p-4 md:py-6 transition-all ease-in-out ${
             hideSideMenu
               ? 'md:max-w-5xl lg:max-w-5xl xl:max-w-6xl'
               : 'md:max-w-3xl lg:max-w-3xl xl:max-w-4xl'
