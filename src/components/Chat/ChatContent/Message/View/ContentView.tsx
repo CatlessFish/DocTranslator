@@ -55,16 +55,6 @@ const ContentView = memo(
     const inlineLatex = useStore((state) => state.inlineLatex);
     const markdownMode = useStore((state) => state.markdownMode);
 
-    const handleRefresh = () => {
-      const updatedChats: ChatInterface[] = JSON.parse(
-        JSON.stringify(useStore.getState().chats)
-      );
-      const updatedMessages = updatedChats[currentChatIndex].messages;
-      updatedMessages.splice(updatedMessages.length - 1, 1);
-      setChats(updatedChats);
-      handleSubmit();
-    };
-
     const handleCopy = () => {
       navigator.clipboard.writeText(content);
     };
@@ -104,12 +94,6 @@ const ContentView = memo(
         <div className='flex justify-end gap-2 w-full mt-2'>
           {(
             <>
-              {!useStore.getState().generating &&
-                role === 'assistant' &&
-                messageIndex === lastMessageIndex && (
-                  <RefreshButton onClick={handleRefresh} />
-                )}
-
               <MarkdownModeButton />
               <CopyButton onClick={handleCopy} />
             </>

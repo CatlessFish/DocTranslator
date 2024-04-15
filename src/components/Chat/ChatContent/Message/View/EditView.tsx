@@ -139,8 +139,6 @@ const EditView = ({
         sticky={sticky}
         handleGenerate={handleGenerate}
         handlePreview={handlePreview}
-        setIsModalOpen={setIsModalOpen}
-        setIsEdit={setIsEdit}
         _setContent={_setContent}
       />
       {isModalOpen && (
@@ -160,51 +158,18 @@ const EditViewButtons = memo(
     sticky = false,
     handleGenerate,
     handlePreview,
-    setIsModalOpen,
-    setIsEdit,
-    _setContent,
   }: {
     sticky?: boolean;
     handleGenerate: () => void;
       handlePreview: () => void;
-    setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
     _setContent: React.Dispatch<React.SetStateAction<string>>;
   }) => {
     const { t } = useTranslation();
     const generating = useStore.getState().generating;
-    const advancedMode = useStore((state) => state.advancedMode);
 
     return (
       <div className='flex'>
-        <div className='flex-1 text-center mt-2 flex justify-center'>
-          {sticky && (
-            <button
-              className={`btn relative mr-2 btn-primary ${
-                generating ? 'cursor-not-allowed opacity-40' : ''
-              }`}
-              onClick={handleGenerate}
-              aria-label={t('generate') as string}
-            >
-              <div className='flex items-center justify-center gap-2'>
-                {t('generate')}
-              </div>
-            </button>
-          )}
-
-          {sticky || (
-            <button
-              className='btn relative mr-2 btn-primary'
-              onClick={() => {
-                !generating && setIsModalOpen(true);
-              }}
-            >
-              <div className='flex items-center justify-center gap-2'>
-                {t('generate')}
-              </div>
-            </button>
-          )}
-
+        <div className='flex-1 text-center mt-2 flex justify-end'>
           <button
             className={`btn relative mr-2 ${
               sticky
@@ -214,27 +179,26 @@ const EditViewButtons = memo(
                 : 'btn-neutral'
             }`}
             onClick={handlePreview}
-            aria-label={t('preview') as string}
+            // aria-label={t('preview') as string}
           >
             <div className='flex items-center justify-center gap-2'>
-              {t('preview')}
+              {/* {t('preview')} */}
+              {`预览提示词`}
             </div>
           </button>
 
-          {sticky || (
-            <button
-              className='btn relative btn-neutral'
-              onClick={() => setIsEdit(false)}
-              aria-label={t('cancel') as string}
-            >
-              <div className='flex items-center justify-center gap-2'>
-                {t('cancel')}
-              </div>
-            </button>
-          )}
+          <button
+            className={`btn relative mr-2 btn-primary ${generating ? 'cursor-not-allowed opacity-40' : ''
+              }`}
+            onClick={handleGenerate}
+          // aria-label={t('generate') as string}
+          >
+            <div className='flex items-center justify-center gap-2'>
+              {/* {t('generate')} */}
+              {`翻译`}
+            </div>
+          </button>
         </div>
-        {sticky && advancedMode && <TokenCount />}
-        {/* <CommandPrompt _setContent={_setContent} /> */}
       </div>
     );
   }

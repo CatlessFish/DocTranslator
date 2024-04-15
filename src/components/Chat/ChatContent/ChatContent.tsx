@@ -74,14 +74,11 @@ const ChatContent = () => {
 
           <div className='w-full h-full'>
             {/* Result area */}
-            {task.result_text !== '' ?
-              <Message
-                role={'assistant'}
-                content={task.result_text}
-                messageIndex={1}
-              />
-              :
-              <div />}
+            <Message
+              role={'assistant'}
+              content={task.result_text}
+              messageIndex={1}
+            />
           </div>
 
           {error !== '' && (

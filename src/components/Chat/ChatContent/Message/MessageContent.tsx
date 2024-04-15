@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import useStore from '@store/store';
 
-import ContentView from './View/ContentView';
+// import ContentView from './View/ContentView';
 import EditView from './View/EditView';
+import ResultView from './View/ResultView';
 
 const MessageContent = ({
   role,
@@ -20,8 +21,7 @@ const MessageContent = ({
 
   return (
     <div className='relative flex flex-col gap-2 h-full md:gap-3 lg:w-[calc(100%-80px)]'
-      style={{ margin: 'auto' }}>
-      <div className='h-[calc(30px)]'></div>
+      style={{ margin: 'auto', paddingTop: '20px' }}>
       {isEdit ? (
         <EditView
           content={content}
@@ -30,8 +30,7 @@ const MessageContent = ({
           sticky={sticky}
         />
       ) : (
-        <ContentView
-          role={role}
+          <ResultView
           content={content}
           setIsEdit={setIsEdit}
           messageIndex={messageIndex}
