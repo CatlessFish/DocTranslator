@@ -26,6 +26,7 @@ const useSubmit = () => {
     if (generating || !chats) return;
 
     chats[currentChatIndex].task.result_text = '';
+    chats[currentChatIndex].task.original_result_text = '';
     const constructedMessages = promptConstruct(chats[currentChatIndex].task);
 
     const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
@@ -103,6 +104,7 @@ const useSubmit = () => {
             );
             const updatedTask = updatedChats[currentChatIndex].task;
             updatedTask.result_text += resultString;
+            updatedTask.original_result_text += resultString;
 
             const updatedMessages = updatedChats[currentChatIndex].messages;
             updatedMessages[updatedMessages.length - 1].content += resultString;

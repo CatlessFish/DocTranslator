@@ -13,7 +13,7 @@ const dateString =
 export const _defaultSystemMessage =
   import.meta.env.VITE_DEFAULT_SYSTEM_MESSAGE ??
   `You are a professional translator. You are asked to translate the following Chinese text into English or vice versa.\
-The translation should be accurate and natural. Respond in Markdown`;
+The translation should be accurate and natural.`;
 
 export const modelOptions: ModelOptions[] = [
   'gpt-3.5-turbo',
@@ -131,6 +131,7 @@ export const blankAssistentMessage: MessageInterface = {
 export const generateDefaultTask = (): TaskInterface => ({
   user_text: '',
   result_text: '',
+  original_result_text: '',
 });
 
 export const generateDefaultChat = (

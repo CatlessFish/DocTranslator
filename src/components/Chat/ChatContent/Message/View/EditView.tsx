@@ -4,7 +4,7 @@ import useStore from '@store/store';
 
 import useSubmit from '@hooks/useSubmit';
 
-import { ChatInterface } from '@type/chat';
+import { ChatInterface, MessageInterface } from '@type/chat';
 
 import PopupModal from '@components/PopupModal';
 import TokenCount from '@components/TokenCount';
@@ -29,6 +29,7 @@ const EditView = ({
 
   const [_content, _setContent] = useState<string>(content);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [messagePreview, setMessagePreview] = useState<MessageInterface[]>([]);
   const textareaRef = React.createRef<HTMLTextAreaElement>();
 
   const { t } = useTranslation();
@@ -77,6 +78,8 @@ const EditView = ({
     updatedChats[currentChatIndex].messages = promptConstruct(updatedTask);
     console.log('[handlePreview] Updated messages: ', updatedChats[currentChatIndex].messages);
     setChats(updatedChats);
+    setMessagePreview(updatedChats[currentChatIndex].messages);
+    setIsModalOpen(true);
   };
 
   const { handleSubmit } = useSubmit();
@@ -144,10 +147,21 @@ const EditView = ({
       {isModalOpen && (
         <PopupModal
           setIsModalOpen={setIsModalOpen}
-          title={t('warning') as string}
-          message={t('clearMessageWarning') as string}
-          handleConfirm={handleGenerate}
-        />
+          title={`预览提示词` as string}
+          handleConfirm={() => setIsModalOpen(false)}
+          cancelButton={false}
+        >
+          <div className='flex flex-col'>
+            {
+              messagePreview.map((msg, idx) => (
+                <div className='m-2 p-2' key={idx}>
+                  <div>{(msg.role as string).toUpperCase()}</div>
+                  <div>{msg.content as string}</div>
+                </div>
+              ))
+            }
+          </div>
+        </PopupModal>
       )}
     </>
   );

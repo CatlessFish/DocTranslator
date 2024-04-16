@@ -5,8 +5,12 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import useStore from '@store/store';
+import { ChatInterface, MessageInterface, TaskInterface } from '@type/chat';
+import PopupModal from '@components/PopupModal';
 import { useTranslation } from 'react-i18next';
 import CopyButton from './Button/CopyButton';
+import * as Diff from 'diff';
 
 const ResultView = memo(
   ({
@@ -23,10 +27,38 @@ const ResultView = memo(
       navigator.clipboard.writeText(content);
     };
     const [_content, _setContent] = useState<string>(content);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [diffPreview, setDiffPreview] = useState<Diff.Change[]>([]);
     const textareaRef = React.createRef<HTMLTextAreaElement>();
     const resetTextAreaHeight = () => {
       if (textareaRef.current) textareaRef.current.style.height = 'auto';
     };
+
+    const setChats = useStore((state) => state.setChats);
+    const currentChatIndex = useStore((state) => state.currentChatIndex);
+    const chats = useStore.getState().chats;
+
+    const handleShowDiff = () => {
+      if (!chats || !chats[currentChatIndex]) return;
+      const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
+      setDiffPreview(Diff.diffChars(updatedChats[currentChatIndex].task.original_result_text, _content));
+      setIsModalOpen(true);
+    }
+
+    const handleSaveModifiedResult = () => {
+      if (!chats || !chats[currentChatIndex]) return;
+      const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
+      updatedChats[currentChatIndex].task.result_text = _content;
+      setChats(updatedChats);
+      const diff = Diff.diffChars(updatedChats[currentChatIndex].task.original_result_text, updatedChats[currentChatIndex].task.result_text);
+      diff.forEach((part) => {
+        const op = part.added ? 'Added: ' :
+          part.removed ? 'Removed: ' : 'Remained: ';
+        console.info(op, part.value);
+      });
+      // console.info('[saveModifiedResult] Original: ', updatedChats[currentChatIndex].task.original_result_text);
+      // console.info('[saveModifiedResult] Modified: ', updatedChats[currentChatIndex].task.result_text);
+    }
 
     useEffect(() => {
       if (textareaRef.current) {
@@ -78,9 +110,30 @@ const ResultView = memo(
           </div>
         </div>
         <ResultViewButtons
-          handleSave={() => { alert('保存修改') }}
-          _setContent={_setContent}
+          handleSave={handleSaveModifiedResult}
+          handlePreview={handleShowDiff}
         />
+        {isModalOpen && (
+          <PopupModal
+            setIsModalOpen={setIsModalOpen}
+            title={`预览提示词` as string}
+            handleConfirm={() => setIsModalOpen(false)}
+            cancelButton={false}
+          >
+            <div className='m-2 p-2'>
+              {
+                diffPreview.map((part, idx) => (
+                  <span className={''} key={idx} style={
+                    part.added ? { color: 'green', textDecoration: 'underline' } :
+                      part.removed ? { color: 'red', textDecoration: 'line-through' } : {}
+                  }>
+                    {part.value}
+                  </span>
+                ))
+              }
+            </div>
+          </PopupModal>
+        )}
       </>
     );
   }
@@ -89,10 +142,10 @@ const ResultView = memo(
 const ResultViewButtons = memo(
   ({
     handleSave,
-    _setContent,
+    handlePreview,
   }: {
-    handleSave: () => void;
-    _setContent: React.Dispatch<React.SetStateAction<string>>;
+      handleSave: () => void;
+      handlePreview: () => void;
   }) => {
     const { t } = useTranslation();
     // const generating = useStore.getState().generating;
@@ -102,13 +155,20 @@ const ResultViewButtons = memo(
       <div className='flex'>
         <div className='flex-1 text-center mt-2 flex justify-end'>
           <button
+            className={`btn relative mr-2 btn-neutral`}
+            onClick={handlePreview}
+          >
+            <div className='flex items-center justify-center gap-2'>
+              {`预览修改` as string}
+            </div>
+          </button>
+          <button
             className={`btn relative mr-2 btn-primary`}
             onClick={handleSave}
           // aria-label={t('save') as string}
           >
             <div className='flex items-center justify-center gap-2'>
-              {`保存修改`}
-              {/* {t('save')} */}
+              {`保存修改` as string}
             </div>
           </button>
         </div>
