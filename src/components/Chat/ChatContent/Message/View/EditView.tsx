@@ -11,6 +11,7 @@ import TokenCount from '@components/TokenCount';
 import CommandPrompt from '../CommandPrompt';
 import { blankAssistentMessage } from '@constants/chat';
 import { promptConstruct } from '@src/prompting/promtConstruct';
+import DictionaryBar from '@components/DictionaryBar';
 
 const EditView = ({
   content,
@@ -184,6 +185,8 @@ const EditViewButtons = memo(
     return (
       <div className='flex'>
         <div className='flex-1 text-center mt-2 flex justify-end'>
+          <DictionaryBar />
+
           <button
             className={`btn relative mr-2 ${
               sticky

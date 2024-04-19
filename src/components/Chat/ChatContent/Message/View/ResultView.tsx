@@ -116,7 +116,7 @@ const ResultView = memo(
         {isModalOpen && (
           <PopupModal
             setIsModalOpen={setIsModalOpen}
-            title={`预览提示词` as string}
+            title={`预览修改` as string}
             handleConfirm={() => setIsModalOpen(false)}
             cancelButton={false}
           >

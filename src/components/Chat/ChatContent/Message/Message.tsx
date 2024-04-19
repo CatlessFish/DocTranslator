@@ -30,9 +30,7 @@ const Message = React.memo(
 
     return (
       <div
-        className={`w-full h-full border-b border-black/10 dark:border-gray-900/50 text-gray-800 dark:text-gray-100 group ${
-          backgroundStyle[messageIndex % 2]
-        }`}
+        className={`w-full h-full border-b border-black/10 dark:border-gray-900/50 text-gray-800 dark:text-gray-100 group`}
       >
         <div
           className={`h-full text-base gap-4 md:gap-6 m-auto p-2 md:py-6 transition-all ease-in-out ${
