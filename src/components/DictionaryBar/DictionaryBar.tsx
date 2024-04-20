@@ -2,10 +2,20 @@ import SettingIcon from "@icon/SettingIcon";
 import ArrowBottom from "@icon/ArrowBottom";
 import React, { ChangeEvent, useState } from 'react';
 import PopupModal from "@components/PopupModal";
+import useStore from "@store/store";
+import { UserDictInterface } from "@type/userdict";
+import DictionaryConfig from "./DictionaryConfig";
 
 const DictionaryBar = () => {
     const [inputValue, setInputValue] = useState<string>('');
     const [showDictDropup, setShowDictDropup] = useState<boolean>(false);
+
+    const currentChatIndex = useStore((state) => state.currentChatIndex);
+    const chats = useStore((state) => state.chats);
+    if (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) return <></>;
+    const currentDictIndex = chats[currentChatIndex].task.userDictIndex;
+    const userDicts = useStore((state) => state.userDicts);
+    const setUserDicts = useStore((state) => state.setUserDicts);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value)
@@ -21,8 +31,21 @@ const DictionaryBar = () => {
             if (e.ctrlKey && e.shiftKey) {
                 e.preventDefault();
             } else {
-                setInputValue('');
                 // Add to dict
+                const [k, v] = inputValue.split(':');
+                console.log(k, v);
+                if (!(k && v)) {
+                    alert('Invalid input'); // TODO: a more friendly warning
+                } else {
+                    const updatedUserDicts: UserDictInterface[] = JSON.parse(JSON.stringify(userDicts));
+                    // updatedUserDicts[currentDictIndex].entries = []; // clear the entire dict, for debug
+                    updatedUserDicts[currentDictIndex].entries.push({
+                        source: k,
+                        target: v,
+                    });
+                    setUserDicts(updatedUserDicts);
+                }
+                setInputValue('');
             }
         }
     }
@@ -68,7 +91,9 @@ const DictionaryBar = () => {
                 handleConfirm={() => { setShowDictDropup(false) }}
                 handleClose={() => { }}
                 cancelButton={false}
-            />}
+            >
+                <DictionaryConfig />
+            </PopupModal>}
         </>
     );
 };

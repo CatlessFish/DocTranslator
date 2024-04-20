@@ -1,0 +1,9 @@
+export interface UserDictEntryInterface {
+
+};
+
+export interface UserDictInterface {
+    id: string,
+    name: string,
+    entries: UserDictEntryInterface[],
+};

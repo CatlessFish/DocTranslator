@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { ChatInterface, ConfigInterface, MessageInterface, ModelOptions, TaskInterface } from '@type/chat';
+import { UserDictInterface } from '@type/userdict';
 import useStore from '@store/store';
 
 const date = new Date();
@@ -128,10 +129,19 @@ export const blankAssistentMessage: MessageInterface = {
   content: '',
 }
 
+export const generateDefaultUserDict = (
+  name?: string,
+): UserDictInterface => ({
+  id: uuidv4(),
+  name: name ? name : 'New Dictionary',
+  entries: [],
+});
+
 export const generateDefaultTask = (): TaskInterface => ({
   user_text: '',
   result_text: '',
   original_result_text: '',
+  userDictIndex: 0,
 });
 
 export const generateDefaultChat = (
