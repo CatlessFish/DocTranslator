@@ -36,7 +36,7 @@ const DictionaryConfig = () => {
             ...dict,
             entries: dict.entries.filter((entry) => (entry as any).source && (entry as any).target),
         }; // Remove empty entries
-        console.log('[setUserDicts]', dict.entries);
+        // console.log('[setUserDicts]', dict.entries);
         _setCurrDict(dict);
 
         const updatedUserDicts: UserDictInterface[] = JSON.parse(JSON.stringify(userDicts));
@@ -72,24 +72,26 @@ const DictionaryConfig = () => {
         setCurrDict(updatedDict);
     };
 
-    // console.log(typeof userDicts[_currDictIndex].entries[0]);
+    // console.log('[Dictionary Config Rendered]');
+    // console.log('Entries: ', userDicts[_currDictIndex].entries);
+    // FIXME: 按下删除按钮时显示效果不对
+
     return (
         <>
             <div className="flex flex-col" style={{
                 minHeight: '300px',
                 minWidth: '500px',
             }}>
-                {
-                    userDicts[_currDictIndex].entries.map((entry, idx) => {
-                        return <DictEntryView
-                            key={idx}
-                            source={(entry as any).source || ''}
-                            target={(entry as any).target || ''}
-                            handleUpdate={dictEntryUpdator(idx)}
-                            handleRemove={dictEntryRemover(idx)}
-                        />
-                    })
-                }
+                {userDicts[_currDictIndex].entries.map((entry, idx) => {
+                    // console.log(entry, idx);
+                    return <DictEntryView
+                        key={idx}
+                        source={(entry as any).source || ''}
+                        target={(entry as any).target || ''}
+                        handleUpdate={dictEntryUpdator(idx)}
+                        handleRemove={dictEntryRemover(idx)}
+                    />
+                })}
                 <button onClick={handleAddNewEntry} style={{
                     padding: '0.5rem 0.5rem',
                     display: 'flex',
@@ -135,11 +137,15 @@ const DictEntryView = ({
     };
 
     const [isNotEditable, setIsNotEditable] = useState<boolean>(true);
-    const handleButtonClick = () => {
+    const handleEditButtonClick = () => {
         if (!isNotEditable)
             handleUpdate({ source: sourceValue, target: targetValue });
         setIsNotEditable(!isNotEditable);
-    }
+    };
+    const handleRemoveButtonClick = () => {
+        handleRemove();
+        setIsNotEditable(true);
+    };
 
     return (
         <div className="w-full flex">
@@ -162,11 +168,11 @@ const DictEntryView = ({
                 onKeyDown={(e) => { handleKeyDown(e) }}
             />
             {
-                !isNotEditable && <button className={'m-2'} onClick={handleRemove}>
+                !isNotEditable && <button className={'m-2'} onClick={handleRemoveButtonClick}>
                     <DeleteIcon />
                 </button>
             }
-            <button className={'m-2'} onClick={handleButtonClick}>
+            <button className={'m-2'} onClick={handleEditButtonClick}>
                 {
                     isNotEditable ? <EditIcon /> : <TickIcon />
                 }

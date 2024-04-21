@@ -28,9 +28,6 @@
       "@src/*": [
         "./src/*"
       ],
-      "@prompting/*": [
-        "./src/prompting/*"
-      ],
     }
   },
   "include": ["src", "electron/index.cjs"],

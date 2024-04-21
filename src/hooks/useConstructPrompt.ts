@@ -1,0 +1,43 @@
+import { blankAssistentMessage } from "@constants/chat";
+import { MessageInterface, TaskInterface } from "@type/chat";
+import { _defaultSystemMessage } from "@constants/chat";
+import useStore from "@store/store";
+import { UserDictEntryInterface, UserDictInterface } from "@type/userdict";
+
+const useConstructPrompt = () => {
+    const userDicts = useStore((state) => state.userDicts);
+    const currentChatIndex = useStore((state) => state.currentChatIndex);
+    const chats = useStore((state) => state.chats);
+    const setChats = useStore((state) => state.setChats);
+
+    const constructPrompt = (): MessageInterface[] => {
+        let messages: MessageInterface[] = [];
+        if (!chats) return messages;
+        const currTask = chats[currentChatIndex].task;
+        const userDict = (currTask.userDictIndex < userDicts.length && currTask.userDictIndex >= 0) ?
+            userDicts[currTask.userDictIndex] : userDicts[0];
+        messages = _constructPrompt(currTask, userDict);
+        // Update chat.message?
+        return messages;
+    };
+
+    return { constructPrompt };
+};
+
+// These functions specify Prompt Strategy
+const _constructPrompt = (task: TaskInterface, dict: UserDictInterface): MessageInterface[] => {
+    let messages: MessageInterface[] = [];
+    messages.push({ 'role': 'system', 'content': _defaultSystemMessage });
+    dict.entries.forEach((entry) => {
+        messages.push({ 'role': 'system', 'content': dictEntryToPrompt(entry) });
+    });
+    messages.push({ 'role': 'user', 'content': task.user_text });
+    messages.push(blankAssistentMessage);
+    return messages;
+};
+
+const dictEntryToPrompt = (entry: UserDictEntryInterface): string => {
+    return `You should translate "${(entry as any).source}" into "${(entry as any).target}"`;
+}
+
+export { useConstructPrompt };

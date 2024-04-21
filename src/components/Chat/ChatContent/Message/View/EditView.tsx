@@ -10,7 +10,7 @@ import PopupModal from '@components/PopupModal';
 import TokenCount from '@components/TokenCount';
 import CommandPrompt from '../CommandPrompt';
 import { blankAssistentMessage } from '@constants/chat';
-import { promptConstruct } from '@src/prompting/promtConstruct';
+import { useConstructPrompt } from '@hooks/useConstructPrompt';
 import DictionaryBar from '@components/DictionaryBar';
 
 const EditView = ({
@@ -27,10 +27,11 @@ const EditView = ({
   const inputRole = useStore((state) => state.inputRole);
   const setChats = useStore((state) => state.setChats);
   const currentChatIndex = useStore((state) => state.currentChatIndex);
+  const { constructPrompt } = useConstructPrompt();
 
   const [_content, _setContent] = useState<string>(content);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [messagePreview, setMessagePreview] = useState<MessageInterface[]>([]);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
+  const [promptPreview, setPromptPreview] = useState<MessageInterface[]>([]);
   const textareaRef = React.createRef<HTMLTextAreaElement>();
 
   const { t } = useTranslation();
@@ -76,11 +77,11 @@ const EditView = ({
     if (sticky && inputRole == 'user') {
       updatedTask.user_text = _content;
     }
-    updatedChats[currentChatIndex].messages = promptConstruct(updatedTask);
-    console.log('[handlePreview] Updated messages: ', updatedChats[currentChatIndex].messages);
+    updatedChats[currentChatIndex].messages = constructPrompt();
+    // console.log('[handlePreview] Updated messages: ', updatedChats[currentChatIndex].messages);
     setChats(updatedChats);
-    setMessagePreview(updatedChats[currentChatIndex].messages);
-    setIsModalOpen(true);
+    setPromptPreview(updatedChats[currentChatIndex].messages);
+    setIsPreviewModalOpen(true);
   };
 
   const { handleSubmit } = useSubmit();
@@ -145,16 +146,16 @@ const EditView = ({
         handlePreview={handlePreview}
         _setContent={_setContent}
       />
-      {isModalOpen && (
+      {isPreviewModalOpen && (
         <PopupModal
-          setIsModalOpen={setIsModalOpen}
+          setIsModalOpen={setIsPreviewModalOpen}
           title={`预览提示词` as string}
-          handleConfirm={() => setIsModalOpen(false)}
+          handleConfirm={() => setIsPreviewModalOpen(false)}
           cancelButton={false}
         >
           <div className='flex flex-col'>
             {
-              messagePreview.map((msg, idx) => (
+              promptPreview.map((msg, idx) => (
                 <div className='m-2 p-2' key={idx}>
                   <div>{(msg.role as string).toUpperCase()}</div>
                   <div>{msg.content as string}</div>

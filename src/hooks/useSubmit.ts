@@ -8,7 +8,7 @@ import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig, blankAssistentMessage } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
 import { isUndefined } from 'lodash';
-import { promptConstruct } from '@src/prompting/promtConstruct';
+import { useConstructPrompt } from '@hooks/useConstructPrompt';
 
 const useSubmit = () => {
   const { t, i18n } = useTranslation('api');
@@ -20,6 +20,7 @@ const useSubmit = () => {
   const generating = useStore((state) => state.generating);
   const currentChatIndex = useStore((state) => state.currentChatIndex);
   const setChats = useStore((state) => state.setChats);
+  const { constructPrompt } = useConstructPrompt();
 
   const handleSubmit = async () => {
     const chats = useStore.getState().chats;
@@ -27,7 +28,7 @@ const useSubmit = () => {
 
     chats[currentChatIndex].task.result_text = '';
     chats[currentChatIndex].task.original_result_text = '';
-    const constructedMessages = promptConstruct(chats[currentChatIndex].task);
+    const constructedMessages = constructPrompt();
 
     const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
     updatedChats[currentChatIndex].messages = constructedMessages;
@@ -40,7 +41,6 @@ const useSubmit = () => {
       //   throw new Error('No messages submitted!');
 
       const messages = limitMessageTokens(
-        // chats[currentChatIndex].messages,
         constructedMessages,
         chats[currentChatIndex].config.max_tokens,
         chats[currentChatIndex].config.model
@@ -98,6 +98,7 @@ const useSubmit = () => {
               }
               return output;
             }, '');
+            // console.log('[resultstring]', resultString);
 
             const updatedChats: ChatInterface[] = JSON.parse(
               JSON.stringify(useStore.getState().chats)
