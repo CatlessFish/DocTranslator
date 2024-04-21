@@ -72,9 +72,7 @@ const DictionaryConfig = () => {
         setCurrDict(updatedDict);
     };
 
-    // console.log('[Dictionary Config Rendered]');
     // console.log('Entries: ', userDicts[_currDictIndex].entries);
-    // FIXME: 按下删除按钮时显示效果不对
 
     return (
         <>
@@ -122,6 +120,11 @@ const DictEntryView = ({
 }) => {
     const [sourceValue, setSourceValue] = useState<string>(source);
     const [targetValue, setTargetValue] = useState<string>(target);
+    useEffect(() => {
+        setSourceValue(source);
+        setTargetValue(target);
+    }, [source, target]);
+
     const handleSourceChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSourceValue(e.target.value);
     };
