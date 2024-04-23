@@ -77,10 +77,10 @@ const EditView = ({
     if (sticky && inputRole == 'user') {
       updatedTask.user_text = _content;
     }
-    updatedChats[currentChatIndex].messages = constructPrompt();
+    const messageChunks = constructPrompt();
     // console.log('[handlePreview] Updated messages: ', updatedChats[currentChatIndex].messages);
     setChats(updatedChats);
-    setPromptPreview(updatedChats[currentChatIndex].messages);
+    setPromptPreview(messageChunks.flat());
     setIsPreviewModalOpen(true);
   };
 
@@ -154,6 +154,7 @@ const EditView = ({
           cancelButton={false}
         >
           <div className='flex flex-col'>
+            {/* <TokenCount /> */}
             {
               promptPreview.map((msg, idx) => (
                 <div className='m-2 p-2' key={idx}>

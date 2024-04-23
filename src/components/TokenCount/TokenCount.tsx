@@ -4,15 +4,17 @@ import { shallow } from 'zustand/shallow';
 
 import countTokens from '@utils/messageUtils';
 import { modelCost } from '@constants/chat';
+import { MessageInterface } from '@type/chat';
 
 const TokenCount = React.memo(() => {
   const [tokenCount, setTokenCount] = useState<number>(0);
   const generating = useStore((state) => state.generating);
   const messages = useStore(
-    (state) =>
-      state.chats ? state.chats[state.currentChatIndex].messages : [],
-    shallow
+    (state) => (state.chats && state.chats[state.currentChatIndex].task.messageChunks) ?
+      state.chats[state.currentChatIndex].task.messageChunks.flat() as MessageInterface[] : []
+    , shallow
   );
+  // console.log(messages)
 
   const model = useStore((state) =>
     state.chats
@@ -32,11 +34,11 @@ const TokenCount = React.memo(() => {
   }, [messages, generating]);
 
   return (
-    <div className='absolute top-[-16px] right-0'>
+    // <div className='absolute top-[-16px] right-0'>
       <div className='text-xs italic text-gray-900 dark:text-gray-300'>
         Tokens: {tokenCount} (${cost})
       </div>
-    </div>
+    // </div>
   );
 });
 

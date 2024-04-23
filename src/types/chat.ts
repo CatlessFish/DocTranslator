@@ -9,11 +9,14 @@ export interface MessageInterface {
   content: string;
 }
 
+export type MessageChunkInterface = MessageInterface[];
+
 export interface TaskInterface {
   user_text: string;
   result_text: string;
   original_result_text: string;
   userDictIndex: number;
+  messageChunks: MessageChunkInterface[];
   // Other fields such as user dictionary
 }
 

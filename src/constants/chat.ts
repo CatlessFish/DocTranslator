@@ -13,7 +13,7 @@ const dateString =
 
 export const _defaultSystemMessage =
   import.meta.env.VITE_DEFAULT_SYSTEM_MESSAGE ??
-  `You are a professional translator. You are asked to translate the following Chinese text into English or vice versa.\
+  `You are a professional translator. You are asked to translate the following English text into Chinese or vice versa.\
 The translation should be accurate and natural.`;
 
 export const modelOptions: ModelOptions[] = [
@@ -142,6 +142,7 @@ export const generateDefaultTask = (): TaskInterface => ({
   result_text: '',
   original_result_text: '',
   userDictIndex: 0,
+  messageChunks: [],
 });
 
 export const generateDefaultChat = (

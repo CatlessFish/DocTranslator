@@ -11,16 +11,7 @@ import useSubmit from '@hooks/useSubmit';
 import { generateDefaultTask } from '@constants/chat';
 
 const ChatContent = () => {
-  const inputRole = useStore((state) => state.inputRole);
   const setError = useStore((state) => state.setError);
-  const messages = useStore((state) =>
-    state.chats &&
-    state.chats.length > 0 &&
-    state.currentChatIndex >= 0 &&
-    state.currentChatIndex < state.chats.length
-      ? state.chats[state.currentChatIndex].messages
-      : []
-  );
 
   const task = useStore((state) =>
     state.chats &&
@@ -31,14 +22,15 @@ const ChatContent = () => {
       : generateDefaultTask() // Should not happen?
   );
 
-  const stickyIndex = useStore((state) =>
-    state.chats &&
-    state.chats.length > 0 &&
-    state.currentChatIndex >= 0 &&
-    state.currentChatIndex < state.chats.length
-      ? state.chats[state.currentChatIndex].messages.length
-      : 0
-  );
+  // const stickyIndex = useStore((state) =>
+  //   state.chats &&
+  //   state.chats.length > 0 &&
+  //   state.currentChatIndex >= 0 &&
+  //   state.currentChatIndex < state.chats.length
+  //     ? state.chats[state.currentChatIndex].messages.length
+  //     : 0
+  // );
+  const stickyIndex = 0;
   // const advancedMode = useStore((state) => state.advancedMode);
   const generating = useStore.getState().generating;
   const hideSideMenu = useStore((state) => state.hideSideMenu);
