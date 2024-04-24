@@ -7,3 +7,9 @@ export interface UserDictInterface {
     name: string,
     entries: UserDictEntryInterface[],
 };
+
+export interface UserPromptInterface {
+    id: string,
+    name: string,
+    content: string,
+};

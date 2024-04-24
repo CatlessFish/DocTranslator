@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { ChatInterface, ConfigInterface, MessageInterface, ModelOptions, TaskInterface } from '@type/chat';
-import { UserDictInterface } from '@type/userdict';
+import { UserDictInterface } from '@type/userpref';
 import useStore from '@store/store';
 
 const date = new Date();

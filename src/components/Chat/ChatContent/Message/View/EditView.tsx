@@ -12,6 +12,7 @@ import CommandPrompt from '../CommandPrompt';
 import { blankAssistentMessage } from '@constants/chat';
 import { useConstructPrompt } from '@hooks/useConstructPrompt';
 import DictionaryBar from '@components/DictionaryBar';
+import { parsePatch } from 'diff';
 
 const EditView = ({
   content,
@@ -69,17 +70,15 @@ const EditView = ({
   };
 
   const handlePreview = () => {
-    if (sticky && (_content === '' || useStore.getState().generating)) return;
+    if (sticky && (useStore.getState().generating)) return;
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
     const updatedTask = updatedChats[currentChatIndex].task;
-    if (sticky && inputRole == 'user') {
-      updatedTask.user_text = _content;
-    }
+    updatedTask.user_text = _content;
+    setChats(updatedChats);
     const messageChunks = constructPrompt();
     // console.log('[handlePreview] Updated messages: ', updatedChats[currentChatIndex].messages);
-    setChats(updatedChats);
     setPromptPreview(messageChunks.flat());
     setIsPreviewModalOpen(true);
   };

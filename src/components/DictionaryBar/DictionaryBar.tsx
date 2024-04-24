@@ -3,7 +3,7 @@ import ArrowBottom from "@icon/ArrowBottom";
 import React, { ChangeEvent, useState } from 'react';
 import PopupModal from "@components/PopupModal";
 import useStore from "@store/store";
-import { UserDictInterface } from "@type/userdict";
+import { UserDictInterface } from "@type/userpref";
 import DictionaryConfig from "./DictionaryConfig";
 
 const DictionaryBar = () => {
@@ -50,6 +50,16 @@ const DictionaryBar = () => {
         }
     }
 
+    const validateUserDict = () => {
+        const updatedUserDicts: UserDictInterface[] = JSON.parse(JSON.stringify(userDicts));
+        // Remove Empty Entries
+        updatedUserDicts[currentDictIndex] = {
+            ...updatedUserDicts[currentDictIndex],
+            entries: updatedUserDicts[currentDictIndex].entries.filter((entry) => (entry as any).source && (entry as any).target),
+        };
+        setUserDicts(updatedUserDicts);
+    };
+
     return (
         <>
             <div
@@ -88,8 +98,8 @@ const DictionaryBar = () => {
                 title='自定义字典'
                 message={''}
                 setIsModalOpen={setShowDictDropup}
-                handleConfirm={() => { setShowDictDropup(false) }}
-                handleClose={() => { }}
+                handleConfirm={() => { validateUserDict(); setShowDictDropup(false); }}
+                handleClose={validateUserDict}
                 cancelButton={false}
             >
                 <DictionaryConfig />

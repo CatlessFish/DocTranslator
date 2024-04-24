@@ -1,4 +1,4 @@
-import { UserDictInterface } from "@type/userdict"
+import { UserDictInterface } from "@type/userpref"
 
 const defaultUserDicts: UserDictInterface[] = [
     {

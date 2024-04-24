@@ -2,20 +2,22 @@ import { blankAssistentMessage } from "@constants/chat";
 import { MessageInterface, MessageChunkInterface, TaskInterface, ChatInterface } from "@type/chat";
 import { _defaultSystemMessage } from "@constants/chat";
 import useStore from "@store/store";
-import { UserDictEntryInterface, UserDictInterface } from "@type/userdict";
+import { UserDictEntryInterface, UserDictInterface } from "@type/userpref";
+import { useEffect } from "react";
 
 const useConstructPrompt = () => {
     const userDicts = useStore((state) => state.userDicts);
     const currentChatIndex = useStore((state) => state.currentChatIndex);
-    const chats = useStore((state) => state.chats);
     const setChats = useStore((state) => state.setChats);
 
     const constructPrompt = (): MessageChunkInterface[] => {
         let chunks: MessageChunkInterface[] = [];
+        const chats = useStore.getState().chats;
         if (!chats) return chunks;
         const currTask = chats[currentChatIndex].task;
         const userDict = (currTask.userDictIndex < userDicts.length && currTask.userDictIndex >= 0) ?
             userDicts[currTask.userDictIndex] : userDicts[0];
+        // console.log(currTask, userDict);
         chunks = _constructPrompt(currTask, userDict);
         // Update task.chunks
         const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));

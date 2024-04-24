@@ -1,7 +1,7 @@
 import useStore from "@store/store";
 import { ChangeEvent, useEffect, useState } from "react";
 import { ChatInterface } from "@type/chat";
-import { UserDictEntryInterface, UserDictInterface } from "@type/userdict";
+import { UserDictEntryInterface, UserDictInterface } from "@type/userpref";
 import defaultUserDicts from "@constants/userdict";
 import EditIcon from "@icon/EditIcon";
 import TickIcon from "@icon/TickIcon";
@@ -31,11 +31,7 @@ const DictionaryConfig = () => {
     const [currDict, _setCurrDict] = useState<UserDictInterface>(userDicts[_currDictIndex]);
 
     // a wrapper to update both local state and global storage
-    const setCurrDict = (dict: UserDictInterface, removeEmpty: boolean = false) => {
-        if (removeEmpty) dict = {
-            ...dict,
-            entries: dict.entries.filter((entry) => (entry as any).source && (entry as any).target),
-        }; // Remove empty entries
+    const setCurrDict = (dict: UserDictInterface) => {
         // console.log('[setUserDicts]', dict.entries);
         _setCurrDict(dict);
 
