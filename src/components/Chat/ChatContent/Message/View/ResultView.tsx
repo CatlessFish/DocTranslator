@@ -11,6 +11,7 @@ import PopupModal from '@components/PopupModal';
 import { useTranslation } from 'react-i18next';
 import CopyButton from './Button/CopyButton';
 import * as Diff from 'diff';
+import UserPromptBar from '@components/UserPromptBar';
 
 const ResultView = memo(
   ({
@@ -154,6 +155,7 @@ const ResultViewButtons = memo(
     return (
       <div className='flex'>
         <div className='flex-1 text-center mt-2 flex justify-end'>
+          <UserPromptBar />
           <button
             className={`btn relative mr-2 btn-neutral`}
             onClick={handlePreview}

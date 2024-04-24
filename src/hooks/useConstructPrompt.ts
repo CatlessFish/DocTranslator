@@ -2,23 +2,24 @@ import { blankAssistentMessage } from "@constants/chat";
 import { MessageInterface, MessageChunkInterface, TaskInterface, ChatInterface } from "@type/chat";
 import { _defaultSystemMessage } from "@constants/chat";
 import useStore from "@store/store";
-import { UserDictEntryInterface, UserDictInterface } from "@type/userpref";
+import { UserDictEntryInterface, UserDictInterface, UserPromptInterface } from "@type/userpref";
 import { useEffect } from "react";
 
 const useConstructPrompt = () => {
-    const userDicts = useStore((state) => state.userDicts);
     const currentChatIndex = useStore((state) => state.currentChatIndex);
     const setChats = useStore((state) => state.setChats);
 
     const constructPrompt = (): MessageChunkInterface[] => {
-        let chunks: MessageChunkInterface[] = [];
         const chats = useStore.getState().chats;
+        const userDicts = useStore.getState().userDicts;
+        const userPrompts = useStore.getState().userPrompts;
+        let chunks: MessageChunkInterface[] = [];
         if (!chats) return chunks;
         const currTask = chats[currentChatIndex].task;
         const userDict = (currTask.userDictIndex < userDicts.length && currTask.userDictIndex >= 0) ?
             userDicts[currTask.userDictIndex] : userDicts[0];
         // console.log(currTask, userDict);
-        chunks = _constructPrompt(currTask, userDict);
+        chunks = _constructPrompt(currTask, userDict, userPrompts);
         // Update task.chunks
         const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
         if (currentChatIndex < updatedChats.length && currentChatIndex >= 0) {
@@ -33,7 +34,7 @@ const useConstructPrompt = () => {
 };
 
 // These functions specify Prompt Strategy
-const _constructPrompt = (task: TaskInterface, dict: UserDictInterface): MessageChunkInterface[] => {
+const _constructPrompt = (task: TaskInterface, dict: UserDictInterface, prompts: UserPromptInterface[]): MessageChunkInterface[] => {
     const truncatedUserText: string[] = textTrunc(task.user_text);
     const chunks: MessageChunkInterface[] = truncatedUserText.map((usertext) => {
         let messages: MessageInterface[] = [];
@@ -41,6 +42,9 @@ const _constructPrompt = (task: TaskInterface, dict: UserDictInterface): Message
         dict.entries.forEach((entry) => {
             messages.push({ 'role': 'system', 'content': dictEntryToPrompt(entry) });
         });
+        prompts.forEach((prompt) => {
+            messages.push({ 'role': 'system', 'content': prompt.content });
+        })
         messages.push({ 'role': 'user', 'content': usertext });
         // messages.push(blankAssistentMessage);
         return messages;

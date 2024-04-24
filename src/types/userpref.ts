@@ -9,7 +9,5 @@ export interface UserDictInterface {
 };
 
 export interface UserPromptInterface {
-    id: string,
-    name: string,
     content: string,
 };
