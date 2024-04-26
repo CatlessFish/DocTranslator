@@ -16,13 +16,9 @@ import { parsePatch } from 'diff';
 
 const EditView = ({
   content,
-  setIsEdit,
-  messageIndex,
   sticky,
 }: {
-  content: string;
-  setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
-  messageIndex: number;
+    content: string;
   sticky?: boolean;
 }) => {
   const inputRole = useStore((state) => state.inputRole);
@@ -58,19 +54,15 @@ const EditView = ({
         (enterToSubmit && !e.shiftKey) ||
         (!enterToSubmit && (e.ctrlKey || e.shiftKey))
       ) {
-        if (sticky) {
-          e.preventDefault();
-          handleGenerate();
-          resetTextAreaHeight();
-        } else {
-          handlePreview();
-        }
+        e.preventDefault();
+        handleGenerate();
+        resetTextAreaHeight();
       }
     }
   };
 
   const handlePreview = () => {
-    if (sticky && (useStore.getState().generating)) return;
+    if (useStore.getState().generating) return;
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
@@ -120,11 +112,15 @@ const EditView = ({
   return (
     <>
       <div
-        className={`w-full h-[calc(100%-70px)] ${
-          sticky
-            ? 'py-2 md:py-3 px-2 md:px-4 border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]'
-            : ''
-        }`}
+        // shadow-[-5px_0_10px_-3px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]
+        className={`w-full h-[calc(100%-70px)] py-2 md:py-3 px-2 md:px-4 border-b border-l border-t\
+            border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700\
+            
+          `}
+        style={{
+          borderRightWidth: '0.5px',
+          borderRadius: '0 0 0 0.375rem',
+        }}
       >
         <textarea
           ref={textareaRef}
@@ -132,7 +128,7 @@ const EditView = ({
           onChange={(e) => {
             _setContent(e.target.value);
           }}
-          style={{ maxHeight: '100%', minHeight: '100%' }}
+          style={{ maxHeight: `calc(100% - 40px)`, minHeight: `calc(100% - 40px)` }}
           value={_content}
           placeholder={t('submitPlaceholder') as string}
           onKeyDown={handleKeyDown}
@@ -140,7 +136,6 @@ const EditView = ({
         ></textarea>
       </div>
       <EditViewButtons
-        sticky={sticky}
         handleGenerate={handleGenerate}
         handlePreview={handlePreview}
         _setContent={_setContent}
@@ -171,11 +166,10 @@ const EditView = ({
 
 const EditViewButtons = memo(
   ({
-    sticky = false,
     handleGenerate,
     handlePreview,
+    _setContent,
   }: {
-    sticky?: boolean;
     handleGenerate: () => void;
       handlePreview: () => void;
     _setContent: React.Dispatch<React.SetStateAction<string>>;
@@ -184,17 +178,11 @@ const EditViewButtons = memo(
     const generating = useStore.getState().generating;
 
     return (
-      <div className='flex'>
-        <div className='flex-1 text-center mt-2 flex justify-end'>
-          <DictionaryBar />
+      <div className='text-center mt-2 flex justify-end'>
+        {/* <DictionaryBar /> */}
 
           <button
-            className={`btn relative mr-2 ${
-              sticky
-                ? `btn-neutral ${
-                    generating ? 'cursor-not-allowed opacity-40' : ''
-                  }`
-                : 'btn-neutral'
+          className={`btn relative mr-2 btn-neutral ${generating ? 'cursor-not-allowed opacity-40' : ''
             }`}
             onClick={handlePreview}
             // aria-label={t('preview') as string}
@@ -215,8 +203,7 @@ const EditViewButtons = memo(
               {/* {t('generate')} */}
               {`翻译`}
             </div>
-          </button>
-        </div>
+        </button>
       </div>
     );
   }

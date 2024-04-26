@@ -25,15 +25,11 @@ const MessageContent = ({
       {isEdit ? (
         <EditView
           content={content}
-          setIsEdit={setIsEdit}
-          messageIndex={messageIndex}
           sticky={sticky}
         />
       ) : (
           <ResultView
-          content={content}
-          setIsEdit={setIsEdit}
-          messageIndex={messageIndex}
+            content={content}
         />
       )}
     </div>

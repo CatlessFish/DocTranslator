@@ -63,12 +63,10 @@ const DictionaryBar = () => {
     return (
         <>
             <div
-                className={'flex'}
+                className={'flex rounded-tl-md border-black/10'}
                 style={{
-                    'borderWidth': '1px',
+                    'borderWidth': '0.5px',
                     'borderColor': 'rgba(0,0,0,0.1)',
-                    'borderRadius': '0.25rem',
-                    'marginRight': '0.5rem',
                     'flex': '1',
                 }}>
                 <div className='flex w-[calc(100%-36px)]'>

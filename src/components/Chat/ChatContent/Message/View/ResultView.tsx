@@ -16,12 +16,8 @@ import UserPromptBar from '@components/UserPromptBar';
 const ResultView = memo(
   ({
     content,
-    setIsEdit,
-    messageIndex,
   }: {
-    content: string;
-    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
-    messageIndex: number;
+      content: string;
   }) => {
 
     const handleCopy = () => {
@@ -82,11 +78,14 @@ const ResultView = memo(
     return (
       <>
         <div
-          className={`w-full h-[calc(100%-70px)] flex flex-col
-            py-2 md:py-3 px-2 md:px-4 border border-black/10 bg-white 
-            dark:border-gray-900/50 dark:text-white dark:bg-gray-700 
-            rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]
-        `}
+          className={`w-full h-[calc(100%-70px)] py-2 md:py-3 px-2 md:px-4 border-b border-r border-t\
+            border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700\
+            
+          `}
+          style={{
+            borderLeftWidth: '0.5px',
+            borderRadius: '0 0 0.375rem 0',
+          }}
         >
           <textarea
             ref={textareaRef}
@@ -155,7 +154,7 @@ const ResultViewButtons = memo(
     return (
       <div className='flex'>
         <div className='flex-1 text-center mt-2 flex justify-end'>
-          <UserPromptBar />
+          {/* <UserPromptBar /> */}
           <button
             className={`btn relative mr-2 btn-neutral`}
             onClick={handlePreview}
