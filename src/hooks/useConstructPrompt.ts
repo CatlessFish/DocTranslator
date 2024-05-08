@@ -4,6 +4,7 @@ import { _defaultSystemMessage } from "@constants/chat";
 import useStore from "@store/store";
 import { UserDictEntryInterface, UserDictInterface, UserPromptInterface } from "@type/userpref";
 import { useEffect } from "react";
+import countTokens from "@utils/messageUtils";
 
 const useConstructPrompt = () => {
     const currentChatIndex = useStore((state) => state.currentChatIndex);
@@ -54,7 +55,13 @@ const _constructPrompt = (task: TaskInterface, dict: UserDictInterface, prompts:
 
 // Truncate long text into smaller pieces
 const textTrunc = (text: string): string[] => {
-    const result = text.split('\n').filter((value) => value);
+    const model = 'gpt-3.5-turbo';
+    const tokenLimit = 6400; // gpt-3.5-turbo supports maximum 16385 tokens
+
+    // Strategy: consider '\n\n' as a deliminator of a paragraph
+    const lines = text.split('\n\n').filter((value) => value);
+
+    const result = [text];
     // console.log(result);
     return result;
 }

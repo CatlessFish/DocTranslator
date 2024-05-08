@@ -13,8 +13,7 @@ const dateString =
 
 export const _defaultSystemMessage =
   import.meta.env.VITE_DEFAULT_SYSTEM_MESSAGE ??
-  `You are a professional translator. You are asked to translate the following English text into Chinese or vice versa.\
-The translation should be accurate and natural.`;
+  `You are asked to translate the following English text into Chinese. The translation should be accurate and natural.`;
 
 export const modelOptions: ModelOptions[] = [
   'gpt-3.5-turbo',
@@ -118,7 +117,7 @@ export const defaultUserMaxToken = 4000;
 export const _defaultChatConfig: ConfigInterface = {
   model: defaultModel,
   max_tokens: defaultUserMaxToken,
-  temperature: 1,
+  temperature: 1, // Low temp is better for translation tasks
   presence_penalty: 0,
   top_p: 1,
   frequency_penalty: 0,

@@ -12,6 +12,9 @@ import { useTranslation } from 'react-i18next';
 import CopyButton from './Button/CopyButton';
 import * as Diff from 'diff';
 import UserPromptBar from '@components/UserPromptBar';
+import useExtractPreference from '@hooks/useExtractPreference';
+import DictionaryConfig from '@components/DictionaryBar/DictionaryConfig';
+import { UserDictEntryInterface, UserDictInterface } from '@type/userpref';
 
 const ResultView = memo(
   ({
@@ -24,7 +27,8 @@ const ResultView = memo(
       navigator.clipboard.writeText(content);
     };
     const [_content, _setContent] = useState<string>(content);
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isShowDiffModalOpen, setIsShowDiffModalOpen] = useState<boolean>(false);
+    const [isDictModalOpen, setIsDictModalOpen] = useState<boolean>(false);
     const [diffPreview, setDiffPreview] = useState<Diff.Change[]>([]);
     const textareaRef = React.createRef<HTMLTextAreaElement>();
     const resetTextAreaHeight = () => {
@@ -34,28 +38,52 @@ const ResultView = memo(
     const setChats = useStore((state) => state.setChats);
     const currentChatIndex = useStore((state) => state.currentChatIndex);
     const chats = useStore.getState().chats;
+    const { extractPreference } = useExtractPreference();
 
     const handleShowDiff = () => {
       if (!chats || !chats[currentChatIndex]) return;
       const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
       setDiffPreview(Diff.diffChars(updatedChats[currentChatIndex].task.original_result_text, _content));
-      setIsModalOpen(true);
+      setIsShowDiffModalOpen(true);
     }
 
-    const handleSaveModifiedResult = () => {
+    const handleSaveModifiedResult = async () => {
       if (!chats || !chats[currentChatIndex]) return;
       const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-      updatedChats[currentChatIndex].task.result_text = _content;
+      const currentTask: TaskInterface = updatedChats[currentChatIndex].task;
+      currentTask.result_text = _content;
       setChats(updatedChats);
-      const diff = Diff.diffChars(updatedChats[currentChatIndex].task.original_result_text, updatedChats[currentChatIndex].task.result_text);
-      diff.forEach((part) => {
-        const op = part.added ? 'Added: ' :
-          part.removed ? 'Removed: ' : 'Remained: ';
-        console.info(op, part.value);
-      });
-      // console.info('[saveModifiedResult] Original: ', updatedChats[currentChatIndex].task.original_result_text);
-      // console.info('[saveModifiedResult] Modified: ', updatedChats[currentChatIndex].task.result_text);
+
+      // Update user dictionary
+      const newDictEntries: UserDictEntryInterface[] =
+        await extractPreference(currentTask.user_text, currentTask.original_result_text, _content);
+      console.log(newDictEntries);
+      const userDicts = useStore.getState().userDicts;
+      const setUserDicts = useStore.getState().setUserDicts;
+      if (newDictEntries.length > 0) {
+        const updatedDicts: UserDictInterface[] = JSON.parse(JSON.stringify(userDicts));
+        newDictEntries.forEach((newEntry) => {
+          if (!updatedDicts[currentTask.userDictIndex].entries.find((oldEntry) => {
+            return ((oldEntry as any).source == (newEntry as any).source
+              && (oldEntry as any).target == (newEntry as any).target)
+          })) {
+            // if not found
+            updatedDicts[currentTask.userDictIndex].entries.push(newEntry);
+          }
+        });
+        updatedDicts[currentTask.userDictIndex].entries;
+        setUserDicts(updatedDicts);
+
+        // Popup UserDict config panel
+        setIsDictModalOpen(true);
+      };
     }
+
+    const handleExtractPreference = () => {
+      const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
+      const currentTask: TaskInterface = updatedChats[currentChatIndex].task;
+      extractPreference(currentTask.user_text, currentTask.original_result_text, _content);
+    };
 
     useEffect(() => {
       if (textareaRef.current) {
@@ -113,11 +141,11 @@ const ResultView = memo(
           handleSave={handleSaveModifiedResult}
           handlePreview={handleShowDiff}
         />
-        {isModalOpen && (
+        {isShowDiffModalOpen && (
           <PopupModal
-            setIsModalOpen={setIsModalOpen}
+            setIsModalOpen={setIsShowDiffModalOpen}
             title={`预览修改` as string}
-            handleConfirm={() => setIsModalOpen(false)}
+            handleConfirm={() => setIsShowDiffModalOpen(false)}
             cancelButton={false}
           >
             <div className='m-2 p-2'>
@@ -131,7 +159,18 @@ const ResultView = memo(
                   </span>
                 ))
               }
+              {/* <button onClick={handleExtractPreference}>here</button> */}
             </div>
+          </PopupModal>
+        )}
+        {isDictModalOpen && (
+          <PopupModal
+            setIsModalOpen={setIsDictModalOpen}
+            title={`更新词库` as string}
+            handleConfirm={() => setIsDictModalOpen(false)}
+            cancelButton={false}
+          >
+            <DictionaryConfig />
           </PopupModal>
         )}
       </>
