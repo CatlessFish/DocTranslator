@@ -14,12 +14,12 @@ const DictionaryConfig = () => {
     const setChats = useStore((state) => state.setChats);
     if (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) return <></>;
 
-    const currentDictIndex = chats[currentChatIndex].task.userDictIndex;
+    const currentDictIndex = chats[currentChatIndex].task.user_dict_index;
     const [_currDictIndex, __setCurrDictIndex] = useState<number>(currentDictIndex);
     const _setCurrDictIndex = (newIndex: number) => {
         __setCurrDictIndex(newIndex);
         const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-        updatedChats[currentChatIndex].task.userDictIndex = newIndex;
+        updatedChats[currentChatIndex].task.user_dict_index = newIndex;
         setChats(updatedChats);
     };
 

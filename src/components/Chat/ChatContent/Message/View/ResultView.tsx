@@ -15,17 +15,24 @@ import UserPromptBar from '@components/UserPromptBar';
 import useExtractPreference from '@hooks/useExtractPreference';
 import DictionaryConfig from '@components/DictionaryBar/DictionaryConfig';
 import { UserDictEntryInterface, UserDictInterface } from '@type/userpref';
+import SpinnerIcon from '@icon/SpinnerIcon';
 
-const ResultView = memo(
-  ({
-    content,
-  }: {
-      content: string;
-  }) => {
+const ResultView = () => {
+  const chats = useStore((state) => state.chats);
+  if (!chats) return <></>;
+  const setChats = useStore((state) => state.setChats);
+  const currentChatIndex = useStore((state) => state.currentChatIndex);
+  const task = chats[currentChatIndex].task;
+  let content: string = '';
+  if (task.result_text_chunks) {
+    content = task.result_text_chunks.map((chunk) => chunk.text)
+      .reduce((prev, curr) => {
+        return prev + curr;
+      }, '');
+    // console.log(my_content);
+  }
+  const { extractPreference } = useExtractPreference();
 
-    const handleCopy = () => {
-      navigator.clipboard.writeText(content);
-    };
     const [_content, _setContent] = useState<string>(content);
     const [isShowDiffModalOpen, setIsShowDiffModalOpen] = useState<boolean>(false);
     const [isDictModalOpen, setIsDictModalOpen] = useState<boolean>(false);
@@ -35,10 +42,9 @@ const ResultView = memo(
       if (textareaRef.current) textareaRef.current.style.height = 'auto';
     };
 
-    const setChats = useStore((state) => state.setChats);
-    const currentChatIndex = useStore((state) => state.currentChatIndex);
-    const chats = useStore.getState().chats;
-    const { extractPreference } = useExtractPreference();
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content);
+  };
 
     const handleShowDiff = () => {
       if (!chats || !chats[currentChatIndex]) return;
@@ -52,26 +58,30 @@ const ResultView = memo(
       const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
       const currentTask: TaskInterface = updatedChats[currentChatIndex].task;
       currentTask.result_text = _content;
+      setDiffPreview(Diff.diffChars(currentTask.original_result_text, _content));
+      // console.log(diffPreview);
+      const modified = diffPreview.some((part) => part.added || part.removed)
       setChats(updatedChats);
 
       // Update user dictionary
-      const newDictEntries: UserDictEntryInterface[] =
-        await extractPreference(currentTask.user_text, currentTask.original_result_text, _content);
-      console.log(newDictEntries);
+      const newDictEntries: UserDictEntryInterface[] = modified ?
+        await extractPreference(currentTask.user_text, currentTask.original_result_text, _content) : [];
+      // console.log(newDictEntries);
       const userDicts = useStore.getState().userDicts;
       const setUserDicts = useStore.getState().setUserDicts;
+
       if (newDictEntries.length > 0) {
         const updatedDicts: UserDictInterface[] = JSON.parse(JSON.stringify(userDicts));
         newDictEntries.forEach((newEntry) => {
-          if (!updatedDicts[currentTask.userDictIndex].entries.find((oldEntry) => {
+          if (!updatedDicts[currentTask.user_dict_index].entries.find((oldEntry) => {
             return ((oldEntry as any).source == (newEntry as any).source
               && (oldEntry as any).target == (newEntry as any).target)
           })) {
             // if not found
-            updatedDicts[currentTask.userDictIndex].entries.push(newEntry);
+            updatedDicts[currentTask.user_dict_index].entries.push(newEntry);
           }
         });
-        updatedDicts[currentTask.userDictIndex].entries;
+        updatedDicts[currentTask.user_dict_index].entries;
         setUserDicts(updatedDicts);
 
         // Popup UserDict config panel
@@ -132,6 +142,12 @@ const ResultView = memo(
           <div className='flex justify-end gap-2 w-full mt-2'>
             {(
               <>
+                {useStore.getState().generating && <SpinnerIcon
+                  style={{
+                    height: '24px',
+                    width: '24px',
+                  }}
+                />}
                 <CopyButton onClick={handleCopy} />
               </>
             )}
@@ -148,19 +164,21 @@ const ResultView = memo(
             handleConfirm={() => setIsShowDiffModalOpen(false)}
             cancelButton={false}
           >
-            <div className='m-2 p-2'>
-              {
-                diffPreview.map((part, idx) => (
-                  <span className={''} key={idx} style={
-                    part.added ? { color: 'green', textDecoration: 'underline' } :
-                      part.removed ? { color: 'red', textDecoration: 'line-through' } : {}
-                  }>
-                    {part.value}
-                  </span>
-                ))
-              }
-              {/* <button onClick={handleExtractPreference}>here</button> */}
-            </div>
+            <>
+              <div className='m-2 p-2'>
+                {
+                  diffPreview.map((part, idx) => (
+                    <span className={''} key={idx} style={
+                      part.added ? { color: 'green', textDecoration: 'underline' } :
+                        part.removed ? { color: 'red', textDecoration: 'line-through' } : {}
+                    }>
+                      {part.value}
+                    </span>
+                  ))
+                }
+                {/* <button onClick={handleExtractPreference}>here</button> */}
+              </div>
+            </>
           </PopupModal>
         )}
         {isDictModalOpen && (
@@ -175,8 +193,7 @@ const ResultView = memo(
         )}
       </>
     );
-  }
-);
+};
 
 const ResultViewButtons = memo(
   ({

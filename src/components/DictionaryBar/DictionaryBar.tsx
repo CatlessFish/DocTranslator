@@ -13,7 +13,7 @@ const DictionaryBar = () => {
     const currentChatIndex = useStore((state) => state.currentChatIndex);
     const chats = useStore((state) => state.chats);
     if (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) return <></>;
-    const currentDictIndex = chats[currentChatIndex].task.userDictIndex;
+    const currentDictIndex = chats[currentChatIndex].task.user_dict_index;
     const userDicts = useStore((state) => state.userDicts);
     const setUserDicts = useStore((state) => state.setUserDicts);
 

@@ -20,7 +20,7 @@ const ChatContentEditor = () => {
                 <EditView content={task.user_text} />
             </TextAreaStyleDecorator>
             <TextAreaStyleDecorator>
-                <ResultView content={task.result_text} />
+                <ResultView />
             </TextAreaStyleDecorator>
 
         </div>

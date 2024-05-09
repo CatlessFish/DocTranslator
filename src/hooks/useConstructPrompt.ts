@@ -17,14 +17,19 @@ const useConstructPrompt = () => {
         let chunks: MessageChunkInterface[] = [];
         if (!chats) return chunks;
         const currTask = chats[currentChatIndex].task;
-        const userDict = (currTask.userDictIndex < userDicts.length && currTask.userDictIndex >= 0) ?
-            userDicts[currTask.userDictIndex] : userDicts[0];
+        const userDict = (currTask.user_dict_index < userDicts.length && currTask.user_dict_index >= 0) ?
+            userDicts[currTask.user_dict_index] : userDicts[0];
         // console.log(currTask, userDict);
-        chunks = _constructPrompt(currTask, userDict, userPrompts);
+        const chunkedUserText: string[] = textTrunc(currTask.user_text);
+        chunks = _constructPrompt(chunkedUserText, userDict, userPrompts);
+
         // Update task.chunks
         const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
         if (currentChatIndex < updatedChats.length && currentChatIndex >= 0) {
-            updatedChats[currentChatIndex].task.messageChunks = chunks;
+            updatedChats[currentChatIndex].task.message_chunks = chunks;
+            updatedChats[currentChatIndex].task.user_text_chunks = chunkedUserText.map((text, chunk_num) => {
+                return { chunk_num, text }
+            });
             setChats(updatedChats);
         }
         // console.log(updatedChats[currentChatIndex].task);
@@ -35,18 +40,27 @@ const useConstructPrompt = () => {
 };
 
 // These functions specify Prompt Strategy
-const _constructPrompt = (task: TaskInterface, dict: UserDictInterface, prompts: UserPromptInterface[]): MessageChunkInterface[] => {
-    const truncatedUserText: string[] = textTrunc(task.user_text);
-    const chunks: MessageChunkInterface[] = truncatedUserText.map((usertext) => {
+// const beta_prompt = `所给的英文文本格式为[【$编号】][换行][待翻译文本]。
+// 除了开头的一个编号和换行之外，后续内容都是待翻译文本，你需要将它们全部翻译出来。
+// 以json格式返回结果，json中包括：1.这段文本的编号，命名为"chunk_num"；2.翻译的结果，命名为"text"`
+const beta_prompt = `
+The English text given by USER is formatted as "[【$number】][text_to_translate].
+All the text after the $number at the very beginning should be translated.
+Return in JSON, which has the structure as {"chunk_num":[the given number], "text":[the translated text]}.
+`
+
+const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, prompts: UserPromptInterface[]): MessageChunkInterface[] => {
+    const chunks: MessageChunkInterface[] = chunkedUserText.map((usertext, idx) => {
         let messages: MessageInterface[] = [];
         messages.push({ 'role': 'system', 'content': _defaultSystemMessage });
+        messages.push({ 'role': 'system', 'content': beta_prompt });
         dict.entries.forEach((entry) => {
             messages.push({ 'role': 'system', 'content': dictEntryToPrompt(entry) });
         });
         prompts.forEach((prompt) => {
             messages.push({ 'role': 'system', 'content': prompt.content });
         })
-        messages.push({ 'role': 'user', 'content': usertext });
+        messages.push({ 'role': 'user', 'content': `【$${idx}】` + '\n' + usertext });
         // messages.push(blankAssistentMessage);
         return messages;
     });
@@ -63,7 +77,7 @@ const textTrunc = (text: string): string[] => {
 
     const result = [text];
     // console.log(result);
-    return result;
+    return lines;
 }
 
 const dictEntryToPrompt = (entry: UserDictEntryInterface): string => {

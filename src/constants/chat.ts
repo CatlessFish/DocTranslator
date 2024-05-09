@@ -140,8 +140,11 @@ export const generateDefaultTask = (): TaskInterface => ({
   user_text: '',
   result_text: '',
   original_result_text: '',
-  userDictIndex: 0,
-  messageChunks: [],
+  user_dict_index: 0,
+  message_chunks: [],
+  user_text_chunks: [],
+  result_text_chunks: [],
+  original_result_text_chunks: [],
 });
 
 export const generateDefaultChat = (

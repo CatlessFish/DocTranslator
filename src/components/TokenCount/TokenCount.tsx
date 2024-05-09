@@ -10,8 +10,8 @@ const TokenCount = React.memo(() => {
   const [tokenCount, setTokenCount] = useState<number>(0);
   const generating = useStore((state) => state.generating);
   const messages = useStore(
-    (state) => (state.chats && state.chats[state.currentChatIndex].task.messageChunks) ?
-      state.chats[state.currentChatIndex].task.messageChunks.flat() as MessageInterface[] : []
+    (state) => (state.chats && state.chats[state.currentChatIndex].task.message_chunks) ?
+      state.chats[state.currentChatIndex].task.message_chunks.flat() as MessageInterface[] : []
     , shallow
   );
   // console.log(messages)

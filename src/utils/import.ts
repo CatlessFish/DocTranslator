@@ -121,7 +121,10 @@ export const convertOpenAIToBetterChatGPTFormat = (
     id: uuidv4(),
     title: openAIChat.title,
     messages,
-    task: { user_text: '', result_text: '', original_result_text: '', userDictIndex: 0, messageChunks: [] },
+    task: {
+      user_text: '', result_text: '', original_result_text: '', user_dict_index: 0, message_chunks: [],
+      user_text_chunks: [], original_result_text_chunks: [], result_text_chunks: [],
+    },
     config: _defaultChatConfig,
     titleSet: true,
   };

@@ -11,13 +11,21 @@ export interface MessageInterface {
 
 export type MessageChunkInterface = MessageInterface[];
 
+export interface TextChunkInterface {
+  chunk_num: number;
+  text: string;
+}
+
 export interface TaskInterface {
   user_text: string;
   result_text: string;
   original_result_text: string;
-  userDictIndex: number;
-  messageChunks: MessageChunkInterface[];
-  // Other fields such as user dictionary
+  user_text_chunks: TextChunkInterface[];
+  result_text_chunks: TextChunkInterface[];
+  original_result_text_chunks: TextChunkInterface[];
+
+  user_dict_index: number;
+  message_chunks: MessageChunkInterface[];
 }
 
 export interface ChatInterface {
@@ -37,6 +45,7 @@ export interface ConfigInterface {
   presence_penalty: number;
   top_p: number;
   frequency_penalty: number;
+  response_format?: any;
 }
 
 export interface ChatHistoryInterface {
