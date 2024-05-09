@@ -25,6 +25,7 @@ const useSubmit = () => {
   const handleSubmit = async () => {
     const chats = useStore.getState().chats;
     if (generating || !chats) return;
+    console.debug('Submitting..');
 
     const currTask = chats[currentChatIndex].task;
     currTask.result_text = '';
@@ -76,7 +77,7 @@ const useSubmit = () => {
         }
         // console.log(ith_result);
         const rawJson = JSON.parse(ith_result.choices[0].message.content);
-        console.log(rawJson);
+        // console.log(rawJson);
         const { chunk_num, text } = rawJson;
 
         // Update task
