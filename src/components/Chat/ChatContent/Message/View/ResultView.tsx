@@ -6,6 +6,7 @@ import React, {
   memo,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import useStore from '@store/store';
@@ -127,18 +128,21 @@ const ResultView = () => {
     })
   }</>);
 
-  let shadow_value = inner;
+  const editorContent = useRef(inner);
 
   const handleContentChange = (e: ContentEditableEvent) => {
     // Do not re-render when content change
-    console.log(shadow_value == e.target.value);
-    shadow_value = e.target.value;
+    // console.log(editorContent.current == e.target.value);
+    // editorContent.current = JSON.parse(JSON.stringify(e.target.value));
+    editorContent.current = e.target.value;
+    // console.log('change:', editorContent.current);
   };
 
   // ******This code looks shit... Hopes it work properly... ******
   const handleBlur = () => {
     // Save content modifications when blur
-    let children: ReactElement[] = parse(shadow_value);
+    // console.log('blur:', editorContent.current);
+    let children: ReactElement[] = parse(editorContent.current);
     if (!isArray(children)) children = [children];
     // console.log('children', children)
     const newChunks: TextChunkInterface[] = chunks.map((c) => {
@@ -152,15 +156,14 @@ const ResultView = () => {
         isArray(child.props.children) ? child.props.children[0] : child.props.children
         : '\n';
       // console.log(chunk_id, text);
-      // newChunks.push({ chunk_num: chunk, text });
       if (chunk_id >= 0) newChunks[chunk_id].text += text;
     });
     // console.groupEnd();
-    console.debug('newchunks', newChunks);
-    setChunks(newChunks);
+    // console.debug('newchunks', newChunks);
 
     const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
     updatedChats[currentChatIndex].task.result_text_chunks = newChunks;
+    setChunks(newChunks);
     setChats(updatedChats);
   }
 

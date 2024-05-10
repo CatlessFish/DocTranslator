@@ -28,13 +28,14 @@ const useSubmit = () => {
     console.debug('Submitting..');
 
     const currTask = chats[currentChatIndex].task;
+    // console.log(currTask.user_text);
     currTask.result_text = '';
     currTask.original_result_text = '';
     currTask.message_chunks = [];
     currTask.result_text_chunks = [];
     currTask.original_result_text_chunks = [];
     const constructedMessagesChunks = constructPrompt(); // This should update task.messageChunks
-
+    // console.log(constructedMessagesChunks);
     const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
     setChats(updatedChats);
     setGenerating(true);

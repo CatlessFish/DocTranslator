@@ -77,18 +77,12 @@ const EditView = ({
 
   const { handleSubmit } = useSubmit();
   const handleGenerate = () => {
-    if (useStore.getState().generating) return;
-    const updatedChats: ChatInterface[] = JSON.parse(
-      JSON.stringify(useStore.getState().chats)
-    );
+    if (_content == '' || useStore.getState().generating) return;
+    const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(useStore.getState().chats));
     const updatedTask = updatedChats[currentChatIndex].task;
-    if (sticky && inputRole == 'user' && _content !== '') {
-      updatedTask.user_text = _content;
-    }
+    updatedTask.user_text = _content;
     setChats(updatedChats);
-    if (_content !== '') {
-      handleSubmit();
-    }
+    handleSubmit();
   };
 
   useEffect(() => {
