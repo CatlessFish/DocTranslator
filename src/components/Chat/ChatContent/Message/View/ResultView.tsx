@@ -115,8 +115,7 @@ const ResultView = () => {
       const updatedDicts: UserDictInterface[] = JSON.parse(JSON.stringify(userDicts));
       newDictEntries.forEach((newEntry) => {
         if (!updatedDicts[updatedTask.user_dict_index].entries.find((oldEntry) => {
-          return ((oldEntry as any).source == (newEntry as any).source
-            && (oldEntry as any).target == (newEntry as any).target)
+          return (oldEntry.source == newEntry.source && oldEntry.target == newEntry.target)
         })) {
         // if not found
           updatedDicts[updatedTask.user_dict_index].entries.push(newEntry);

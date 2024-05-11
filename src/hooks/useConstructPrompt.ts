@@ -14,6 +14,8 @@ const useConstructPrompt = () => {
         const chats = useStore.getState().chats;
         const userDicts = useStore.getState().userDicts;
         const userPrompts = useStore.getState().userPrompts;
+        // console.log(JSON.stringify(userDicts));
+        // console.log(JSON.stringify(userPrompts));
         let chunks: MessageChunkInterface[] = [];
         if (!chats) return chunks;
         const currTask = chats[currentChatIndex].task;
@@ -46,24 +48,26 @@ const useConstructPrompt = () => {
 const init_prompt = `
 The English text given by USER is formatted as "[【$number】][text_to_translate].
 All the text after the $number at the very beginning should be translated.
-Return in JSON, which has the structure as {"chunk_num":[the given number], "text":[the translated text]}.
+After this, you should summarize the information in your translation and form a CONTEXT,
+for the following tasks to reference. The context should not exceeds 500 tokens.
 `
 
 const following_prompt = `
-There will be two pieces of text given by USER, namely "PREV_EN" and "CURR_EN".
+In this task, there will be two pieces of text given by USER, namely "PREV_EN" and "CURR_EN".
 "PREV_EN" and "CURR_EN" are originally consequent text.
 You need to translate the text in "CURR_EN" into Chinese, considering the context and coreference in "PREV_EN".
 "CURR_EN" is formatted as "[【$number】][text_to_translate]. All the text after the $number at the very beginning should be translated.
-Return in JSON, which has the structure as {"chunk_num":[the given number in "CURR_EN"], "text":[the translated text]}.
 `
 
-const following_prompt_withZH = `
-There will be three pieces of text given by USER, namely "PREV_EN", "PREV_ZH" and "CURR_EN".
-"PREV_EN" and "CURR_EN" are consequent text, and "PREV_ZH" is the Chinese translation of the text in "PREV_EN".
-You need to translate the text in "CURR_EN" into Chinese, considering the context, coreference and
-translation style of "PREV_ZH" and its original text "PREV_EN".
-"CURR_EN" is formatted as "[【$number】][text_to_translate]. All the text after the $number at the very beginning should be translated.
-Return in JSON, which has the structure as {"chunk_num":[the given number in "CURR_ZH"], "text":[the translated text]}.
+const context_prompt = `
+There will be another piece of text given by the USER named "CONTEXT". It contains the information of those text
+prior to the given text in this task. Please adjust your tranlation result according to the context.
+After this, update the context by summaring and adding the information in this tranlation into the original context.
+The updated context should not exceeds 500 tokens, so you may compress the original context if needed. You should return the updated context.
+`
+const format_prompt = `
+Return in JSON, which has the structure as
+{"chunk_num":[the given number in "CURR_EN"], "text":[the translated text], "context":[the concluded context]}.
 `
 
 const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, prompts: UserPromptInterface[]): MessageChunkInterface[] => {
@@ -76,9 +80,11 @@ const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, pr
         } else {
             messages.push({ 'role': 'system', 'content': following_prompt });
         }
+        messages.push({ 'role': 'system', 'content': format_prompt });
 
         // User Preferences, including vocab and prompt
-        dict.entries.forEach((entry) => {
+        const referencedEntries = dictEntryFilter(usertext, dict);
+        referencedEntries.forEach((entry) => {
             messages.push({ 'role': 'system', 'content': dictEntryToPrompt(entry) });
         });
         prompts.forEach((prompt) => {
@@ -97,6 +103,12 @@ const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, pr
     return chunks;
 };
 
+export const addContextToPrompt = (messages: MessageChunkInterface, context: string = ''): MessageChunkInterface => {
+    messages.push({ 'role': 'system', 'content': context_prompt });
+    messages.push({ 'role': 'user', 'content': context });
+    return messages;
+}
+
 // Truncate long text into smaller pieces
 const textTrunc = (text: string): string[] => {
     const model = 'gpt-3.5-turbo';
@@ -110,8 +122,19 @@ const textTrunc = (text: string): string[] => {
     return lines;
 }
 
+const dictEntryFilter = (text: string, dict: UserDictInterface): UserDictEntryInterface[] => {
+    const result: UserDictEntryInterface[] = [];
+    dict.entries.forEach((entry) => {
+        const words = entry.source.split(' ');
+        // console.debug(words, text);
+        if (words.some((word) => { return text.includes(word) }))
+            result.push(entry);
+    })
+    return result;
+}
+
 const dictEntryToPrompt = (entry: UserDictEntryInterface): string => {
-    return `You should translate "${(entry as any).source}" into "${(entry as any).target}"`;
+    return `You should translate "${entry.source}" into "${entry.target}"`;
 }
 
 export { useConstructPrompt };

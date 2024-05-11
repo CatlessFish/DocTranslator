@@ -1,5 +1,6 @@
 export interface UserDictEntryInterface {
-
+    source: string,
+    target: string,
 };
 
 export interface UserDictInterface {

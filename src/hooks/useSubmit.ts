@@ -8,7 +8,7 @@ import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig, blankAssistentMessage } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
 import { isUndefined } from 'lodash';
-import { useConstructPrompt } from '@hooks/useConstructPrompt';
+import { addContextToPrompt, useConstructPrompt } from '@hooks/useConstructPrompt';
 
 const useSubmit = () => {
   const { t, i18n } = useTranslation('api');
@@ -25,7 +25,7 @@ const useSubmit = () => {
   const handleSubmit = async () => {
     const chats = useStore.getState().chats;
     if (generating || !chats) return;
-    console.debug('Submitting..');
+    // console.debug('Submitting..');
 
     const currTask = chats[currentChatIndex].task;
     // console.log(currTask.user_text);
@@ -47,11 +47,10 @@ const useSubmit = () => {
       for (let i = 0, len = constructedMessagesChunks.length; i < len; i++) {
         const messages = constructedMessagesChunks[i];
         let ith_result;
-
-        // Check messages.length
         // Limit messages token
         if (messages.length === 0) throw new Error('Message exceed max token!');
-        console.debug('[handleSubmit] Submitting Messages: ', messages);
+        console.debug(`[handleSubmit] Submitting Messages ${i}: `, messages);
+        // console.log(JSON.stringify(messages));
 
         // no api key (free)
         if (!apiKey || apiKey.length === 0) {
@@ -77,10 +76,16 @@ const useSubmit = () => {
             apiKey
           );
         }
+        // Process the result
         // console.log(ith_result);
         const rawJson = JSON.parse(ith_result.choices[0].message.content);
-        // console.log(rawJson);
-        const { chunk_num, text } = rawJson;
+        console.debug(`Messages [${i}] got response:`, rawJson);
+        // console.log(JSON.stringify(rawJson));
+        const { chunk_num, text, context } = rawJson;
+
+        // Feature: use context
+        if (i + 1 < len)
+          constructedMessagesChunks[i + 1] = addContextToPrompt(constructedMessagesChunks[i + 1], context);
 
         // Update task
         const updatedChats: ChatInterface[] = JSON.parse(

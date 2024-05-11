@@ -37,14 +37,14 @@ const useExtractPreference = () => {
         const prefList = JSON.parse(rawJson.choices[0].message.content);
         console.debug('prefList:', prefList);
         if (!prefList.diff) return [];
-        const result = (prefList.diff as any[]).map((diff) => {
+        const result = (prefList.diff as any[]).map((diff): UserDictEntryInterface => {
             return {
-                source: diff.en,
-                target: diff.zh_mod,
+                source: diff.en || '',
+                target: diff.zh_mod || '',
             }
-        })
+        });
         // console.log(result);
-        return result as UserDictEntryInterface[];
+        return result;
     };
 
     return { extractPreference };

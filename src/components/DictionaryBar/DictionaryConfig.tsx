@@ -80,8 +80,8 @@ const DictionaryConfig = () => {
                     // console.log(entry, idx);
                     return <DictEntryView
                         key={idx}
-                        source={(entry as any).source || ''}
-                        target={(entry as any).target || ''}
+                        source={entry.source || ''}
+                        target={entry.target || ''}
                         handleUpdate={dictEntryUpdator(idx)}
                         handleRemove={dictEntryRemover(idx)}
                     />
