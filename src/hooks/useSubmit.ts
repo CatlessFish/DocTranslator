@@ -34,17 +34,18 @@ const useSubmit = () => {
     currTask.message_chunks = [];
     currTask.result_text_chunks = [];
     currTask.original_result_text_chunks = [];
-    const constructedMessagesChunks = constructPrompt(); // This should update task.messageChunks
-    // console.log(constructedMessagesChunks);
     const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
     setChats(updatedChats);
+
+    // This should update task.messageChunks, so the above changes must be saved first
+    const constructedMessagesChunks = constructPrompt();
+    // console.log(constructedMessagesChunks);
     setGenerating(true);
 
     try {
       // check if len == 0
       for (let i = 0, len = constructedMessagesChunks.length; i < len; i++) {
         const messages = constructedMessagesChunks[i];
-        // console.log(i, messages);
         let ith_result;
 
         // Check messages.length

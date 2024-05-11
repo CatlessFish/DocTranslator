@@ -22,6 +22,7 @@ const useExtractPreference = () => {
             { role: 'user', content: '中文译文：\n' + zh },
             { role: 'user', content: '修订译文：\n' + zh_mod },
         ];
+        console.debug('Extract Preferences:', messages);
         const rawJson = await getChatCompletion(
             apiEndpoint,
             messages,
@@ -34,6 +35,7 @@ const useExtractPreference = () => {
         );
         // console.log(rawJson.choices[0].message.content);
         const prefList = JSON.parse(rawJson.choices[0].message.content);
+        console.debug('prefList:', prefList);
         if (!prefList.diff) return [];
         const result = (prefList.diff as any[]).map((diff) => {
             return {

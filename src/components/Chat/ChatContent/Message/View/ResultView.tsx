@@ -31,9 +31,25 @@ const ResultView = () => {
   const setChats = useStore((state) => state.setChats);
   const currentChatIndex = useStore((state) => state.currentChatIndex);
   const task = chats[currentChatIndex].task;
+
   const [chunks, setChunks] = useState(task.result_text_chunks || []);
   useEffect(() => { setChunks(task.result_text_chunks || []) }, [task]);
+
+  const innerContentHtml = renderToString(<>{
+    chunks.map((chunk, idx) => {
+      return <p key={idx} id={`${idx}`} style={{ whiteSpace: 'pre-wrap' }}>
+        {chunk.text}
+      </p>
+    })
+  }</>);
+  const editorContent = useRef(innerContentHtml);
+  useEffect(() => { editorContent.current = innerContentHtml }, [innerContentHtml]);
   // console.log('refreshed')
+
+  const { extractPreference } = useExtractPreference();
+  const [isShowDiffModalOpen, setIsShowDiffModalOpen] = useState<boolean>(false);
+  const [isDictModalOpen, setIsDictModalOpen] = useState<boolean>(false);
+  const [diffPreview, setDiffPreview] = useState<Diff.Change[]>([]);
 
   const assembleChunks = (chunks: TextChunkInterface[]): string => {
     let cont: string = '';
@@ -43,13 +59,6 @@ const ResultView = () => {
       }, '');
     return cont;
   };
-
-  const { extractPreference } = useExtractPreference();
-
-  // const [_content, _setContent] = useState<string>(content);
-  const [isShowDiffModalOpen, setIsShowDiffModalOpen] = useState<boolean>(false);
-  const [isDictModalOpen, setIsDictModalOpen] = useState<boolean>(false);
-  const [diffPreview, setDiffPreview] = useState<Diff.Change[]>([]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(assembleChunks(chunks));
@@ -120,16 +129,6 @@ const ResultView = () => {
     };
   };
 
-  const inner = renderToString(<>{
-    chunks.map((chunk, idx) => {
-      return <p key={idx} id={`${idx}`} style={{ whiteSpace: 'pre-wrap' }}>
-        {chunk.text}
-      </p>
-    })
-  }</>);
-
-  const editorContent = useRef(inner);
-
   const handleContentChange = (e: ContentEditableEvent) => {
     // Do not re-render when content change
     // console.log(editorContent.current == e.target.value);
@@ -188,7 +187,7 @@ const ResultView = () => {
               minHeight: 'calc(100% - 30px)',
             }}>
             <ContentEditable
-              html={inner}
+              html={innerContentHtml}
               onChange={handleContentChange}
               onBlur={handleBlur}
               style={{outline: 'none'}}

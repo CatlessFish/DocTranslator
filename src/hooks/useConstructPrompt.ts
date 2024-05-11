@@ -43,25 +43,55 @@ const useConstructPrompt = () => {
 // const beta_prompt = `所给的英文文本格式为[【$编号】][换行][待翻译文本]。
 // 除了开头的一个编号和换行之外，后续内容都是待翻译文本，你需要将它们全部翻译出来。
 // 以json格式返回结果，json中包括：1.这段文本的编号，命名为"chunk_num"；2.翻译的结果，命名为"text"`
-const beta_prompt = `
+const init_prompt = `
 The English text given by USER is formatted as "[【$number】][text_to_translate].
 All the text after the $number at the very beginning should be translated.
 Return in JSON, which has the structure as {"chunk_num":[the given number], "text":[the translated text]}.
 `
 
+const following_prompt = `
+There will be two pieces of text given by USER, namely "PREV_EN" and "CURR_EN".
+"PREV_EN" and "CURR_EN" are originally consequent text.
+You need to translate the text in "CURR_EN" into Chinese, considering the context and coreference in "PREV_EN".
+"CURR_EN" is formatted as "[【$number】][text_to_translate]. All the text after the $number at the very beginning should be translated.
+Return in JSON, which has the structure as {"chunk_num":[the given number in "CURR_EN"], "text":[the translated text]}.
+`
+
+const following_prompt_withZH = `
+There will be three pieces of text given by USER, namely "PREV_EN", "PREV_ZH" and "CURR_EN".
+"PREV_EN" and "CURR_EN" are consequent text, and "PREV_ZH" is the Chinese translation of the text in "PREV_EN".
+You need to translate the text in "CURR_EN" into Chinese, considering the context, coreference and
+translation style of "PREV_ZH" and its original text "PREV_EN".
+"CURR_EN" is formatted as "[【$number】][text_to_translate]. All the text after the $number at the very beginning should be translated.
+Return in JSON, which has the structure as {"chunk_num":[the given number in "CURR_ZH"], "text":[the translated text]}.
+`
+
 const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, prompts: UserPromptInterface[]): MessageChunkInterface[] => {
     const chunks: MessageChunkInterface[] = chunkedUserText.map((usertext, idx) => {
-        let messages: MessageInterface[] = [];
+        const messages: MessageInterface[] = [];
         messages.push({ 'role': 'system', 'content': _defaultSystemMessage });
-        messages.push({ 'role': 'system', 'content': beta_prompt });
+        // Task introduction
+        if (idx == 0) {
+            messages.push({ 'role': 'system', 'content': init_prompt });
+        } else {
+            messages.push({ 'role': 'system', 'content': following_prompt });
+        }
+
+        // User Preferences, including vocab and prompt
         dict.entries.forEach((entry) => {
             messages.push({ 'role': 'system', 'content': dictEntryToPrompt(entry) });
         });
         prompts.forEach((prompt) => {
             messages.push({ 'role': 'system', 'content': prompt.content });
         })
-        messages.push({ 'role': 'user', 'content': `【$${idx}】` + '\n' + usertext });
-        // messages.push(blankAssistentMessage);
+
+        // Text to translate
+        if (idx == 0) {
+            messages.push({ 'role': 'user', 'content': `【$${idx}】` + '\n' + usertext });
+        } else {
+            messages.push({ 'role': 'user', 'content': 'PREV_EN:\n' + chunkedUserText[idx - 1] });
+            messages.push({ 'role': 'user', 'content': 'CURR_EN:\n' + `【$${idx}】` + '\n' + usertext });
+        }
         return messages;
     });
     return chunks;
