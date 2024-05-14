@@ -7,7 +7,7 @@ import { parseEventSource } from '@api/helper';
 import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig, blankAssistentMessage } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
-import { isUndefined } from 'lodash';
+import { isArray, isUndefined } from 'lodash';
 import { addContextToPrompt, useConstructPrompt } from '@hooks/useConstructPrompt';
 
 const useSubmit = () => {
@@ -77,11 +77,25 @@ const useSubmit = () => {
           );
         }
         // Process the result
-        // console.log(ith_result);
+        // console.log(ith_result)
+        const reason = ith_result.choices[0].finish_reason;
+        if (reason != 'stop') {
+          console.error('Unexpected finish reason:', reason, 'result:', ith_result);
+          continue;
+        }
         const rawJson = JSON.parse(ith_result.choices[0].message.content);
         console.debug(`Messages [${i}] got response:`, rawJson);
         // console.log(JSON.stringify(rawJson));
-        const { chunk_num, text, context } = rawJson;
+        const { chunk_num, text: _text, context } = rawJson;
+
+        // Some post-process
+        let text: string;
+        if (isArray(_text))
+          text = _text.join('\n')
+        else
+          text = _text
+        text.replaceAll('<NEWLINE>', '\n');
+        console.debug(text.split('\n').length);
 
         // Feature: use context
         if (i + 1 < len)

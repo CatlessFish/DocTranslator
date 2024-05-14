@@ -50,8 +50,8 @@ const ChatContent = () => {
         <ChatContentEditor />
       </div>
       {error !== '' && (
-        <div className='relative py-2 px-3 w-3/5 mt-3 max-md:w-11/12 border rounded-md border-red-500 bg-red-500/10'>
-          <div className='text-gray-600 dark:text-gray-100 text-sm whitespace-pre-wrap'>
+        <div className='absolute py-2 px-3 w-3/5 mt-3 max-md:w-11/12 border rounded-md border-red-500 bg-red-400/90'>
+          <div className='text-gray-800 dark:text-gray-100 text-sm whitespace-pre-wrap'>
             {error}
           </div>
           <div

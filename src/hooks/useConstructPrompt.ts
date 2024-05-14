@@ -45,29 +45,37 @@ const useConstructPrompt = () => {
 // const beta_prompt = `所给的英文文本格式为[【$编号】][换行][待翻译文本]。
 // 除了开头的一个编号和换行之外，后续内容都是待翻译文本，你需要将它们全部翻译出来。
 // 以json格式返回结果，json中包括：1.这段文本的编号，命名为"chunk_num"；2.翻译的结果，命名为"text"`
-const init_prompt = `
-The English text given by USER is formatted as "[【$number】][text_to_translate].
-All the text after the $number at the very beginning should be translated.
-After this, you should summarize the information in your translation and form a CONTEXT,
-for the following tasks to reference. The context should not exceeds 500 tokens.
+const init_prompt = `\
+The English text given by USER is formatted as "[【$number】][text_to_translate].\
+All the text after the $number at the very beginning should be translated.\
+After this, you should summarize the information in your translation and form a CONTEXT,\
+for the following tasks to reference. The context should not exceeds 500 tokens.\
 `
 
-const following_prompt = `
-In this task, there will be two pieces of text given by USER, namely "PREV_EN" and "CURR_EN".
-"PREV_EN" and "CURR_EN" are originally consequent text.
-You need to translate the text in "CURR_EN" into Chinese, considering the context and coreference in "PREV_EN".
-"CURR_EN" is formatted as "[【$number】][text_to_translate]. All the text after the $number at the very beginning should be translated.
+const following_prompt = `\
+In this task, there will be two pieces of text given by USER, namely "PREV_EN" and "CURR_EN".\
+"PREV_EN" and "CURR_EN" are originally consequent text. "CURR_EN" is formatted as "[【$number】][text_to_translate].\
+You need to translate the text in "CURR_EN" into Chinese, considering the context and coreference in "PREV_EN".\
+ All the text after the $number at the very beginning should be translated.\
 `
 
-const context_prompt = `
-There will be another piece of text given by the USER named "CONTEXT". It contains the information of those text
-prior to the given text in this task. Please adjust your tranlation result according to the context.
-After this, update the context by summaring and adding the information in this tranlation into the original context.
-The updated context should not exceeds 500 tokens, so you may compress the original context if needed. You should return the updated context.
+const context_prompt = `\
+There will be another piece of text given by the USER named "CONTEXT". It contains the information of those text\
+prior to the given text in this task. Please adjust your tranlation result according to the context.\
+After this, update the context by summaring and adding the information in this tranlation into the original context.\
+The updated context should not exceeds 500 tokens, so you may compress the original context if needed. You should return the updated context.\
 `
-const format_prompt = `
-Return in JSON, which has the structure as
-{"chunk_num":[the given number in "CURR_EN"], "text":[the translated text], "context":[the concluded context]}.
+
+// const linebreak_prompt = `将原文的每一行翻译成单独的一行。在译文中相应地位置，保留原文的换行符。原文有多少行，译文就应该有多少行。`
+const linebreak_prompt = ` \
+The string "<NEWLINE>" in the CURR_EN text is a special symbol suggesting a line break.
+You need to keep them in their correct position in the translation.
+\
+`
+
+const format_prompt = `\
+Return in JSON, which has the structure as\
+{"chunk_num":the given number in "CURR_EN", "text":the tranlated text, "context":the concluded context}.\
 `
 
 const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, prompts: UserPromptInterface[]): MessageChunkInterface[] => {
@@ -80,6 +88,7 @@ const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, pr
         } else {
             messages.push({ 'role': 'system', 'content': following_prompt });
         }
+        // messages.push({ 'role': 'system', 'content': c });
         messages.push({ 'role': 'system', 'content': format_prompt });
 
         // User Preferences, including vocab and prompt
@@ -92,11 +101,13 @@ const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, pr
         })
 
         // Text to translate
+        // const usertext_with_lines = usertext.split('\n').join('<NEWLINE>');
+        const usertext_with_lines = usertext;
         if (idx == 0) {
-            messages.push({ 'role': 'user', 'content': `【$${idx}】` + '\n' + usertext });
+            messages.push({ 'role': 'user', 'content': `【$${idx}】` + '\n' + usertext_with_lines });
         } else {
             messages.push({ 'role': 'user', 'content': 'PREV_EN:\n' + chunkedUserText[idx - 1] });
-            messages.push({ 'role': 'user', 'content': 'CURR_EN:\n' + `【$${idx}】` + '\n' + usertext });
+            messages.push({ 'role': 'user', 'content': 'CURR_EN:\n' + `【$${idx}】` + '\n' + usertext_with_lines });
         }
         return messages;
     });
@@ -105,7 +116,7 @@ const _constructPrompt = (chunkedUserText: string[], dict: UserDictInterface, pr
 
 export const addContextToPrompt = (messages: MessageChunkInterface, context: string = ''): MessageChunkInterface => {
     messages.push({ 'role': 'system', 'content': context_prompt });
-    messages.push({ 'role': 'user', 'content': context });
+    messages.push({ 'role': 'user', 'content': 'CONTEXT:\n' + context });
     return messages;
 }
 
