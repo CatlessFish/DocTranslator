@@ -49,6 +49,7 @@ export const getChatCompletion = async (
     body: JSON.stringify({
       messages,
       ...config,
+      // model: 'deepseek-chat',
       max_tokens: undefined,
     }),
   });
@@ -102,6 +103,7 @@ export const getChatCompletionStream = async (
     body: JSON.stringify({
       messages,
       ...config,
+      // model: 'deepseek-chat',
       max_tokens: undefined,
       stream: true,
     }),

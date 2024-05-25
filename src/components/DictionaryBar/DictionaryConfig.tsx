@@ -7,6 +7,8 @@ import EditIcon from "@icon/EditIcon";
 import TickIcon from "@icon/TickIcon";
 import DeleteIcon from "@icon/DeleteIcon";
 import PlusIcon from "@icon/PlusIcon";
+import downloadFile from "@utils/downloadFile";
+import { getToday } from "@utils/date";
 
 const DictionaryConfig = () => {
     const currentChatIndex = useStore((state) => state.currentChatIndex);
@@ -96,6 +98,12 @@ const DictionaryConfig = () => {
                     <PlusIcon />
                 </button>
             </div>
+            <button
+                className='btn btn-small btn-primary'
+                onClick={() => { downloadFile(userDicts[_currDictIndex].entries, getToday()); }}
+            >
+                {'导出'}
+            </button>
             {/* TODO: edit dictionary */}
             {/* TODO: choose between dictionaries */}
         </>

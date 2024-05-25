@@ -138,7 +138,11 @@ const dictEntryFilter = (text: string, dict: UserDictInterface): UserDictEntryIn
     dict.entries.forEach((entry) => {
         const words = entry.source.split(' ');
         // console.debug(words, text);
-        if (words.some((word) => { return text.includes(word) }))
+        let count = 0;
+        words.forEach((word) => {
+            if (text.includes(word)) count += 1;
+        })
+        if (count >= words.length) // Should be words.length / 2 ?
             result.push(entry);
     })
     return result;

@@ -48,15 +48,15 @@ const EditView = ({
 
       if (e.ctrlKey && e.shiftKey) {
         e.preventDefault();
-        handleGenerate();
-        resetTextAreaHeight();
+        // handleGenerate();
+        // resetTextAreaHeight();
       } else if (
         (enterToSubmit && !e.shiftKey) ||
         (!enterToSubmit && (e.ctrlKey || e.shiftKey))
       ) {
         e.preventDefault();
-        handleGenerate();
-        resetTextAreaHeight();
+        // handleGenerate();
+        // resetTextAreaHeight();
       }
     }
   };
