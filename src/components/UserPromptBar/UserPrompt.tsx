@@ -2,8 +2,10 @@ import ArrowBottom from "@icon/ArrowBottom";
 import React, { ChangeEvent, useState } from 'react';
 import PopupModal from "@components/PopupModal";
 import useStore from "@store/store";
+import { v4 as uuidv4, v4 } from 'uuid';
 import { UserPromptInterface } from "@type/userpref";
 import UserPromptConfig from "./UserPromptConfig";
+import useBackup from "@hooks/useBackup";
 
 const UserPromptBar = () => {
     const [inputValue, setInputValue] = useState<string>('');
@@ -15,6 +17,8 @@ const UserPromptBar = () => {
 
     const userPrompts = useStore((state) => state.userPrompts);
     const setUserPrompts = useStore((state) => state.setUserPrompts);
+
+    const { syncToServer } = useBackup();
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value)
@@ -34,7 +38,8 @@ const UserPromptBar = () => {
                 const updatedUserPrompts: UserPromptInterface[] = JSON.parse(JSON.stringify(userPrompts));
                 // updatedUserPrompts = []; // clear all prompts, for debug
                 updatedUserPrompts.push({
-                    content: inputValue
+                    id: uuidv4(),
+                    content: inputValue,
                 });
                 setUserPrompts(updatedUserPrompts);
                 setInputValue('');
@@ -48,6 +53,10 @@ const UserPromptBar = () => {
         const updatedUserPrompts = userPrompts.filter((prompt) => prompt.content);
         setUserPrompts(updatedUserPrompts);
     };
+
+    const syncUpPrompts = async () => {
+        await syncToServer('userprompt', { prompts: useStore.getState().userPrompts });
+    }
 
     return (
         <>
@@ -87,6 +96,8 @@ const UserPromptBar = () => {
                 handleConfirm={() => { validateUserPrompt(); setShowPromptPopup(false); }}
                 handleClose={validateUserPrompt}
                 cancelButton={false}
+                options={['SyncUp']}
+                optionCallbacks={[syncUpPrompts]}
             >
                 <UserPromptConfig />
             </PopupModal>}

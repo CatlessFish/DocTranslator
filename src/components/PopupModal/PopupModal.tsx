@@ -12,6 +12,8 @@ const PopupModal = ({
   handleClose,
   handleClickBackdrop,
   cancelButton = true,
+  options,
+  optionCallbacks,
   children,
 }: {
   title?: string;
@@ -21,8 +23,17 @@ const PopupModal = ({
   handleClose?: () => void;
   handleClickBackdrop?: () => void;
   cancelButton?: boolean;
+    options?: string[];
+    optionCallbacks?: (() => void)[];
   children?: React.ReactElement;
 }) => {
+  if (options || optionCallbacks) {
+    if (options?.length != optionCallbacks?.length) {
+      console.error('PopupModalError: option and callback length not eqaul');
+      return <></>;
+    }
+  }
+
   const modalRoot = document.getElementById('modal-root');
   const { t } = useTranslation();
 
@@ -102,6 +113,19 @@ const PopupModal = ({
                   {t('cancel')}
                 </button>
               )}
+              {
+                (options && optionCallbacks) && <>{(options.map((opt, idx) => {
+                  const cb = optionCallbacks[idx];
+                  return <button
+                    type='button'
+                    className='btn btn-neutral'
+                    onClick={cb}
+                    key={idx}
+                  >
+                    {opt as string}
+                  </button>
+                }))}</>
+              }
             </div>
           </div>
         </div>

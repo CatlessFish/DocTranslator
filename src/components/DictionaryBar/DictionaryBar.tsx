@@ -5,6 +5,8 @@ import PopupModal from "@components/PopupModal";
 import useStore from "@store/store";
 import { UserDictInterface } from "@type/userpref";
 import DictionaryConfig from "./DictionaryConfig";
+import downloadFile from "@utils/downloadFile";
+import { getToday } from "@utils/date";
 
 const DictionaryBar = () => {
     const [inputValue, setInputValue] = useState<string>('');
@@ -60,6 +62,12 @@ const DictionaryBar = () => {
         setUserDicts(updatedUserDicts);
     };
 
+    const exportDict = () => {
+        const exportData = useStore.getState().userDicts[currentDictIndex].entries;
+        if (exportData.length == 0) return;
+        downloadFile(exportData, getToday());
+    };
+
     return (
         <>
             <div
@@ -99,6 +107,8 @@ const DictionaryBar = () => {
                 handleConfirm={() => { validateUserDict(); setShowDictDropup(false); }}
                 handleClose={validateUserDict}
                 cancelButton={false}
+                options={['导出']}
+                optionCallbacks={[exportDict]}
             >
                 <DictionaryConfig />
             </PopupModal>}

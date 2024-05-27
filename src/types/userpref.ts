@@ -10,5 +10,6 @@ export interface UserDictInterface {
 };
 
 export interface UserPromptInterface {
+    id: string,
     content: string,
 };

@@ -1,4 +1,5 @@
 import useStore from "@store/store";
+import { v4 as uuidv4, v4 } from 'uuid';
 import { ChangeEvent, useEffect, useState } from "react";
 import { ChatInterface } from "@type/chat";
 import { UserDictEntryInterface, UserDictInterface, UserPromptInterface } from "@type/userpref";
@@ -6,6 +7,7 @@ import EditIcon from "@icon/EditIcon";
 import TickIcon from "@icon/TickIcon";
 import DeleteIcon from "@icon/DeleteIcon";
 import PlusIcon from "@icon/PlusIcon";
+import useBackup from "@hooks/useBackup";
 
 const UserPromptConfig = () => {
     const currentChatIndex = useStore((state) => state.currentChatIndex);
@@ -28,6 +30,8 @@ const UserPromptConfig = () => {
         setUserPrompts(prompts);
     };
 
+    const { syncToServer } = useBackup();
+
     const promptEntryUpdator = (entryIndex: number) => (
         (newEntry: UserPromptInterface) => {
             const updatedPrompts: UserPromptInterface[] = JSON.parse(JSON.stringify(currPrompts));
@@ -49,6 +53,7 @@ const UserPromptConfig = () => {
     const handleAddNewEntry = () => {
         const updatedPrompts: UserPromptInterface[] = JSON.parse(JSON.stringify(currPrompts));
         updatedPrompts.push({
+            id: uuidv4(),
             content: '',
         });
         setCurrPrompts(updatedPrompts);
@@ -117,7 +122,7 @@ const UserPromptEntryView = ({
     const [isNotEditable, setIsNotEditable] = useState<boolean>(true);
     const handleEditButtonClick = () => {
         if (!isNotEditable)
-            handleUpdate({ content: inputValue });
+            handleUpdate({ id: uuidv4(), content: inputValue });
         setIsNotEditable(!isNotEditable);
     };
     const handleRemoveButtonClick = () => {
