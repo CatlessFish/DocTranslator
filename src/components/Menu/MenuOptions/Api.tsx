@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import PersonIcon from '@icon/PersonIcon';
 import ApiMenu from '@components/ApiMenu';
+import MoneyIcon from '@icon/MoneyIcon';
 
 const Config = () => {
   const { t } = useTranslation();
@@ -15,7 +16,8 @@ const Config = () => {
         id='api-menu'
         onClick={() => setIsModalOpen(true)}
       >
-        <PersonIcon />
+        {/* <PersonIcon /> */}
+        <MoneyIcon />
         {t('api')}
       </a>
       {isModalOpen && <ApiMenu setIsModalOpen={setIsModalOpen} />}

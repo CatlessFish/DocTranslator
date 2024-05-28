@@ -2,6 +2,7 @@ import React from 'react';
 import useStore from '@store/store';
 
 import Api from './Api';
+import ProfileMenu from '@components/ProfileMenu';
 import ImportExportChat from '@components/ImportExportChat';
 import SettingsMenu from '@components/SettingsMenu';
 import CollapseOptions from './CollapseOptions';
@@ -20,9 +21,10 @@ const MenuOptions = () => {
           hideMenuOptions ? 'max-h-0' : 'max-h-full'
         } overflow-hidden transition-all`}
       >
-        {countTotalTokens && <TotalTokenCostDisplay />}
-        <ImportExportChat />
+        {/* {countTotalTokens && <TotalTokenCostDisplay />} */}
+        <ProfileMenu />
         <Api />
+        <ImportExportChat />
         <SettingsMenu />
       </div>
     </>
