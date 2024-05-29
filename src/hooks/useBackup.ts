@@ -1,4 +1,5 @@
 import { syncDown, syncUp, userLogin } from "@api/backendApi";
+import { _defaultChatConfig } from "@constants/chat";
 import useStore from "@store/store";
 import { ChatInterface } from "@type/chat";
 import { UserDictInterface, UserPromptInterface } from "@type/userpref";
@@ -6,6 +7,12 @@ import { UserDictInterface, UserPromptInterface } from "@type/userpref";
 export type SyncType = 'chat' | 'userdict' | 'userprompt'
 
 const useBackup = () => {
+    const currentChatIndex = useStore((state) => state.currentChatIndex);
+    const chats = useStore((state) => state.chats);
+    const setChats = useStore((state) => state.setChats);
+    const currentDictIndex = (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) ?
+        0 : chats[currentChatIndex].task.user_dict_index;
+    const setUserDicts = useStore((state) => state.setUserDicts);
     const setUserPromtps = useStore((state) => state.setUserPrompts);
 
     const syncToServer = async (syncType: SyncType, {
@@ -42,14 +49,33 @@ const useBackup = () => {
             return;
         }
         const syncResult = await syncDown(syncType, currUser.token);
+        // console.debug('[syncFromServer]');
         if (syncResult.code != 0) {
             console.error(syncResult.error_msg);
             return;
         }
         switch (syncType) {
             case 'chat':
+                const chats: ChatInterface[] = syncResult.data;
+                console.debug(chats);
+                const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(useStore.getState().chats));
+                const existing_chat_ids = updatedChats.map((c) => { return c.id });
+                chats.forEach((c) => {
+                    c.config = _defaultChatConfig;
+                    c.titleSet = false;
+                    if (!(existing_chat_ids.some((id) => id == c.id)))
+                        updatedChats.unshift(c);
+                });
+                setChats(updatedChats);
                 break;
             case 'userdict':
+                const dict: UserDictInterface = syncResult.data;
+                // console.debug(dict);
+                if (dict && dict.entries instanceof Array) {
+                    const updatedDicts = JSON.parse(JSON.stringify(useStore.getState().userDicts));
+                    updatedDicts[currentDictIndex] = dict;
+                    setUserDicts(updatedDicts);
+                };
                 break;
             case 'userprompt':
                 const { prompts }: { prompts: UserPromptInterface[] } = syncResult.data;
@@ -57,7 +83,6 @@ const useBackup = () => {
                 setUserPromtps(prompts);
                 break;
         };
-        console.debug('syncFromServer');
     };
 
     return { syncToServer, syncFromServer };

@@ -9,6 +9,7 @@ import { _defaultChatConfig, blankAssistentMessage } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
 import { isArray, isUndefined } from 'lodash';
 import { addContextToPrompt, useConstructPrompt } from '@hooks/useConstructPrompt';
+import useBackup from './useBackup';
 
 const useSubmit = () => {
   const { t, i18n } = useTranslation('api');
@@ -21,8 +22,11 @@ const useSubmit = () => {
   const currentChatIndex = useStore((state) => state.currentChatIndex);
   const setChats = useStore((state) => state.setChats);
   const { constructPrompt } = useConstructPrompt();
+  const { syncToServer } = useBackup();
 
   const handleSubmit = async () => {
+    const dictBackupQuery = syncToServer('userdict', { dict: useStore.getState().userDicts[0] });
+    const promptBackupQuery = syncToServer('userprompt', { prompts: useStore.getState().userPrompts });
     const chats = useStore.getState().chats;
     if (generating || !chats) return;
     // console.debug('Submitting..');
@@ -112,6 +116,8 @@ const useSubmit = () => {
         updatedTask.original_result_text_chunks.push({ chunk_num, text: text + '\n\n' });
         setChats(updatedChats);
 
+        const chatBackupQuery = syncToServer('chat', { chat: updatedChats[currentChatIndex] });
+        await Promise.all([dictBackupQuery, promptBackupQuery, chatBackupQuery]);
       } // end for
     } catch (e: unknown) {
       console.log(e)

@@ -76,7 +76,7 @@ const DictionaryConfig = () => {
                 minHeight: '300px',
                 minWidth: '500px',
             }}>
-                {userDicts[_currDictIndex].entries.map((entry, idx) => {
+                {(userDicts[_currDictIndex]) && userDicts[_currDictIndex].entries.map((entry, idx) => {
                     // console.log(entry, idx);
                     return <DictEntryView
                         key={idx}

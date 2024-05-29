@@ -54,15 +54,6 @@ const UserPromptBar = () => {
         setUserPrompts(updatedUserPrompts);
     };
 
-    const syncUpPrompts = async () => {
-        await syncToServer('userprompt', { prompts: useStore.getState().userPrompts });
-    }
-
-    const syncDownPrompts = async () => {
-        await syncFromServer('userprompt');
-        setShowPromptPopup(false);
-    }
-
     return (
         <>
             <div
@@ -101,7 +92,7 @@ const UserPromptBar = () => {
                 handleConfirm={() => { validateUserPrompt(); setShowPromptPopup(false); }}
                 handleClose={validateUserPrompt}
                 cancelButton={false}
-                options={[{ title: 'SyncUp', callBack: syncUpPrompts }, { title: 'SyncDown', callBack: syncDownPrompts }]}
+                options={[]}
             >
                 <UserPromptConfig />
             </PopupModal>}

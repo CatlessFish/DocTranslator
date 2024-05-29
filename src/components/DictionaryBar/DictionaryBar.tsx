@@ -7,6 +7,8 @@ import { UserDictInterface } from "@type/userpref";
 import DictionaryConfig from "./DictionaryConfig";
 import downloadFile from "@utils/downloadFile";
 import { getToday } from "@utils/date";
+import useBackup from "@hooks/useBackup";
+import defaultUserDicts from "@constants/userdict";
 
 const DictionaryBar = () => {
     const [inputValue, setInputValue] = useState<string>('');
@@ -18,6 +20,8 @@ const DictionaryBar = () => {
     const currentDictIndex = chats[currentChatIndex].task.user_dict_index;
     const userDicts = useStore((state) => state.userDicts);
     const setUserDicts = useStore((state) => state.setUserDicts);
+
+    if (!userDicts[0]) setUserDicts(defaultUserDicts);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value)
@@ -107,8 +111,9 @@ const DictionaryBar = () => {
                 handleConfirm={() => { validateUserDict(); setShowDictDropup(false); }}
                 handleClose={validateUserDict}
                 cancelButton={false}
-                options={['导出']}
-                optionCallbacks={[exportDict]}
+                options={[
+                    { title: '导出', callBack: exportDict },
+                ]}
             >
                 <DictionaryConfig />
             </PopupModal>}
