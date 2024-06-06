@@ -6,33 +6,32 @@ import LoginOrRegister from "./LoginOrRegister";
 import { defaultUserInfo } from "@constants/user";
 import useBackup from "@hooks/useBackup";
 
-const ProfileMenu = () => {
+export const ProfileMenuButton = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const user = useStore((state) => state.user);
+  const setMainPagenum = useStore((state) => state.setMainPagenum);
 
   return (
     <>
       <a
         className='flex py-2 px-2 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm'
         onClick={() => {
-          setIsModalOpen(true);
+          // setIsModalOpen(true);
+          setMainPagenum(1);
         }}
       >
         <PersonIcon />
         {`用户信息`}
       </a>
-      {isModalOpen && (
-        <PopupModal
-          title={`用户信息`}
-          setIsModalOpen={setIsModalOpen}
-          cancelButton={false}
-        >
-          {user.isValid ? <UserProfileDisplay /> : <LoginOrRegister />}
-        </PopupModal>
-      )}
     </>
   );
 };
+
+export const ProfileMenu = () => {
+  const user = useStore((state) => state.user);
+  return <>
+    {user.isValid ? <UserProfileDisplay /> : <LoginOrRegister />}
+  </>
+}
 
 const UserProfileDisplay = () => {
   const user = useStore((state) => state.user);
@@ -92,4 +91,4 @@ const UserProfileDisplay = () => {
   )
 }
 
-export default ProfileMenu;
+export default ProfileMenuButton;

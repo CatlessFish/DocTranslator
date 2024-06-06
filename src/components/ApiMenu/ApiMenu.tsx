@@ -10,11 +10,7 @@ import { availableEndpoints, defaultAPIEndpoint } from '@constants/auth';
 
 import DownChevronArrow from '@icon/DownChevronArrow';
 
-const ApiMenu = ({
-  setIsModalOpen,
-}: {
-  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+const ApiMenu = () => {
   const { t } = useTranslation(['main', 'api']);
 
   const apiKey = useStore((state) => state.apiKey);
@@ -28,6 +24,7 @@ const ApiMenu = ({
     !availableEndpoints.includes(apiEndpoint)
   );
 
+  const setIsModalOpen = (param: boolean) => { } // legacy
   const handleSave = () => {
     setApiKey(_apiKey);
     setApiEndpoint(_apiEndpoint);
@@ -41,11 +38,14 @@ const ApiMenu = ({
   };
 
   return (
-    <PopupModal
-      title={t('api') as string}
-      setIsModalOpen={setIsModalOpen}
-      handleConfirm={handleSave}
-    >
+    // <PopupModal
+    //   title={t('api') as string}
+    //   setIsModalOpen={setIsModalOpen}
+    //   handleConfirm={handleSave}
+    // >
+
+    // </PopupModal>
+    <>
       <div className='p-6 border-b border-gray-200 dark:border-gray-600'>
         <label className='flex gap-2 text-gray-900 dark:text-gray-300 text-sm items-center mb-4'>
           <input
@@ -114,7 +114,7 @@ const ApiMenu = ({
           <p>{t('apiEndpoint.warn', { ns: 'api' })}</p>
         </div>
       </div>
-    </PopupModal>
+    </>
   );
 };
 

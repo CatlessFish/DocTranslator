@@ -73,7 +73,7 @@ export const syncUp = async (stype: SyncType, data: any, userToken: string): Pro
             syncType: stype as string,
             data,
         });
-        console.debug('[syncUp] body:', bodyString);
+        // console.debug('[syncUp] body:', bodyString);
         const result = await fetch(BASE_URL + 'sync/upload', {
             method: 'POST',
             headers: {
@@ -101,7 +101,7 @@ export const syncDown = async (stype: SyncType, userToken: string) => {
         const bodyString = JSON.stringify({
             syncType: stype as string,
         });
-        console.debug('[syncDown] body:', bodyString);
+        // console.debug('[syncDown] body:', bodyString);
         const result = await fetch(BASE_URL + 'sync/download', {
             method: 'POST',
             headers: {

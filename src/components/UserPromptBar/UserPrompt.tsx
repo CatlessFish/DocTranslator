@@ -12,8 +12,7 @@ const UserPromptBar = () => {
     const [showPromptPopup, setShowPromptPopup] = useState<boolean>(false);
 
     const currentChatIndex = useStore((state) => state.currentChatIndex);
-    const chats = useStore((state) => state.chats);
-    if (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) return <></>;
+    const chats = useStore((state) => state.chats) || [];
 
     const userPrompts = useStore((state) => state.userPrompts);
     const setUserPrompts = useStore((state) => state.setUserPrompts);

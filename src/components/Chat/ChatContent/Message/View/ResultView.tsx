@@ -165,6 +165,22 @@ const ResultView = () => {
     setChats(updatedChats);
   }
 
+  // CSS Animation for the spinner
+  const blinkAnimation = `
+    @keyframes blink {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  `;
+  const styleElement = document.createElement('style');
+  styleElement.type = 'text/css';
+  styleElement.appendChild(document.createTextNode(blinkAnimation));
+  document.head.appendChild(styleElement);
+
     return (
       <>
         <div
@@ -192,20 +208,6 @@ const ResultView = () => {
               style={{outline: 'none'}}
             />
           </div>
-          {/* <textarea
-            className={`w-full
-              m-0 resize-none rounded-lg bg-transparent overflow-y-scroll
-              focus:ring-0 focus-visible:ring-0 leading-7 placeholder:text-gray-500/40
-            `}
-            onChange={(e) => {
-              // _setContent(e.target.value);
-              console.log(e);
-            }}
-            style={{ maxHeight: `calc(100% - 40px)`, minHeight: `calc(100% - 40px)` }}
-            value={_content}
-          // placeholder={t('submitPlaceholder') as string}
-          // onKeyDown={handleKeyDown}
-          /> */}
           <div className='flex justify-end gap-2 w-full mt-2'>
             {(
               <>
@@ -213,6 +215,7 @@ const ResultView = () => {
                   style={{
                     height: '24px',
                     width: '24px',
+                    animation: 'blink 1s infinite alternate',
                   }}
                 />}
                 <CopyButton onClick={handleCopy} />

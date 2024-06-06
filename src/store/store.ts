@@ -7,6 +7,7 @@ import { ConfigSlice, createConfigSlice } from './config-slice';
 import { PromptSlice, createPromptSlice } from './prompt-slice';
 import { UserPreferenceSlice, createUserPreferenceSlice } from './userdict-slice';
 import { UserInfoSlice, createUserInfoSlice } from './userinfo-slice';
+import { AppStateSlice, createAppStateSlice } from './appstate-slice';
 import {
   LocalStorageInterfaceV0ToV1,
   LocalStorageInterfaceV1ToV2,
@@ -34,7 +35,8 @@ export type StoreState = ChatSlice &
   ConfigSlice &
   PromptSlice &
   UserPreferenceSlice &
-  UserInfoSlice;
+  UserInfoSlice &
+  AppStateSlice;
 
 export type StoreSlice<T> = (
   set: StoreApi<StoreState>['setState'],
@@ -64,6 +66,7 @@ export const createPartializedState = (state: StoreState) => ({
   userDicts: state.userDicts,
   userPrompts: state.userPrompts,
   user: state.user,
+  mainPagenum: state.mainPagenum,
 });
 
 const useStore = create<StoreState>()(
@@ -76,6 +79,7 @@ const useStore = create<StoreState>()(
       ...createPromptSlice(set, get),
       ...createUserPreferenceSlice(set, get),
       ...createUserInfoSlice(set, get),
+      ...createAppStateSlice(set, get),
     }),
     {
       name: 'free-chat-gpt',
