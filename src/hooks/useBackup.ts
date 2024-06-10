@@ -68,7 +68,8 @@ const useBackup = () => {
             case 'chat':
                 const chats: ChatInterface[] = syncResult.data;
                 console.debug(chats);
-                const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(useStore.getState().chats));
+                const currChats = useStore.getState().chats || [];
+                const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(currChats));
                 const existing_chat_ids = updatedChats.map((c) => { return c.id });
                 chats.forEach((c) => {
                     c.config = _defaultChatConfig;
@@ -83,9 +84,11 @@ const useBackup = () => {
                 const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
                 const existing_session_ids = updatedSessions.map((s) => s.id);
                 sessions.forEach((s) => {
-
+                    s.config = _defaultChatConfig;
+                    if (!(existing_session_ids.some((id) => id == s.id)))
+                        updatedSessions.unshift(s);
                 });
-                setSessions(sessions);
+                setSessions(updatedSessions);
                 break;
             case 'userdict':
                 const dict: UserDictInterface = syncResult.data;

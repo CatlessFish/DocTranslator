@@ -5,6 +5,7 @@ import useStore from "@store/store";
 import LoginOrRegister from "./LoginOrRegister";
 import { defaultUserInfo } from "@constants/user";
 import useBackup from "@hooks/useBackup";
+import { ChatToSession } from "@constants/chat";
 
 export const ProfileMenuButton = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -61,15 +62,15 @@ const UserProfileDisplay = () => {
     await syncFromServer('userprompt');
   }
 
-  const syncUpChats = async () => {
-    const chats = useStore.getState().chats;
-    if (!chats) return;
-    const queries = chats.map((chat) => syncToServer('chat', { chat }));
+  const syncUpSessions = async () => {
+    const sessions = useStore.getState().sessions;
+    if (!sessions) return;
+    const queries = sessions.map((session) => syncToServer('session', { session }));
     await Promise.all(queries);
   };
 
-  const syncDownChats = async () => {
-    await syncFromServer('chat');
+  const syncDownSessions = async () => {
+    await syncFromServer('session');
   };
 
   return (
@@ -77,16 +78,28 @@ const UserProfileDisplay = () => {
       <div className="m-4">{`Username: ${user.username}`}</div>
       {/* <div>{`Email: ${user.email}`}</div> */}
       <div className="flex m-4" style={{ justifyItems: 'center' }}>
-        <button onClick={syncUpChats} className="btn btn-neutral max-w-fit">{`上传翻译记录`}</button>
+        <button onClick={syncUpSessions} className="btn btn-neutral max-w-fit">{`上传翻译记录`}</button>
         <button onClick={syncUpDicts} className="btn btn-neutral max-w-fit">{`上传用户字典`}</button>
         <button onClick={syncUpPrompts} className="btn btn-neutral max-w-fit">{`上传用户提示词`}</button>
       </div>
       <div className="flex m-4" style={{ justifyItems: 'center' }}>
-        <button onClick={syncDownChats} className="btn btn-neutral max-w-fit">{`下载翻译记录`}</button>
+        <button onClick={syncDownSessions} className="btn btn-neutral max-w-fit">{`下载翻译记录`}</button>
         <button onClick={syncDownDicts} className="btn btn-neutral max-w-fit">{`下载用户字典`}</button>
         <button onClick={syncDownPrompts} className="btn btn-neutral max-w-fit">{`下载用户提示词`}</button>
       </div>
       <button onClick={handleLogOut} className="btn btn-dark max-w-fit">Logout</button>
+      {/* <button onClick={async () => {
+        await syncFromServer('chat');
+        const chats = useStore.getState().chats;
+        if (chats) {
+          const sessions = chats.map((c) => ChatToSession(c));
+          sessions.forEach(async (s) => {
+            await syncToServer('session', { session: s });
+          })
+        }
+      }}>
+        Debug
+      </button> */}
     </div>
   )
 }

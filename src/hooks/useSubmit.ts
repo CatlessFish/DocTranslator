@@ -177,9 +177,9 @@ const useSubmit = () => {
         }
 
         // Auto Backup
-        // const chatBackupQuery = syncToServer('session', { session: currSession }); // Does it work?
-        const chatBackupQuery = Promise.resolve();
-        await Promise.all([dictBackupQuery, promptBackupQuery, chatBackupQuery]);
+        const sessionBackupQuery = syncToServer('session', { session: currSession });
+        // const sessionBackupQuery = Promise.resolve();
+        await Promise.all([dictBackupQuery, promptBackupQuery, sessionBackupQuery]);
       } // end for
     } catch (e: unknown) {
       console.error(e);

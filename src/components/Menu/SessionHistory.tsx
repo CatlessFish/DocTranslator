@@ -23,12 +23,9 @@ const SessionHistoryClass = {
 
 const SessionHistory = React.memo(
   ({ title, sessionIndex }: { title: string; sessionIndex: number }) => {
-    // const initialiseNewChat = useInitialiseNewChat();
-    // const setCurrentChatIndex = useStore((state) => state.setCurrentChatIndex);
-    // const setChats = useStore((state) => state.setChats);
-
     const initialiseNewSession = useInitialiseNewSession();
     const setCurrentSessionIndex = useStore((state) => state.setCurrentSessionIndex);
+    const setMainPagenum = useStore((state) => state.setMainPagenum);
     const setSessions = useStore((state) => state.setSessions);
 
     const active = useStore((state) => state.currentSessionIndex === sessionIndex);
@@ -101,7 +98,10 @@ const SessionHistory = React.memo(
             : 'cursor-pointer opacity-100'
         }`}
         onClick={() => {
-          if (!generating) setCurrentSessionIndex(sessionIndex);
+          if (!generating) {
+            setCurrentSessionIndex(sessionIndex);
+            setMainPagenum(0);
+          }
         }}
         draggable
         onDragStart={handleDragStart}
