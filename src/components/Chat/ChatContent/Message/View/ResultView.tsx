@@ -10,7 +10,7 @@ import React, {
   useState,
 } from 'react';
 import useStore from '@store/store';
-import { ChatInterface, MessageInterface, TaskInterface, TextChunkInterface } from '@type/chat';
+import { ChatInterface, MessageInterface, SessionInterface, TaskInterface, TextChunkInterface } from '@type/chat';
 import PopupModal from '@components/PopupModal';
 import { useTranslation } from 'react-i18next';
 import CopyButton from './Button/CopyButton';
@@ -26,14 +26,23 @@ import { renderToString } from 'react-dom/server';
 import { isArray, isUndefined } from 'lodash';
 
 const ResultView = () => {
-  const chats = useStore((state) => state.chats);
-  if (!chats) return <></>;
-  const setChats = useStore((state) => state.setChats);
-  const currentChatIndex = useStore((state) => state.currentChatIndex);
-  const task = chats[currentChatIndex].task;
+  // CHAT2SESSION
+  // const chats = useStore((state) => state.chats);
+  // if (!chats) return <></>;
+  // const setChats = useStore((state) => state.setChats);
+  // const currentChatIndex = useStore((state) => state.currentChatIndex);
+  // const task = chats[currentChatIndex].task;
 
-  const [chunks, setChunks] = useState(task.result_text_chunks || []);
-  useEffect(() => { setChunks(task.result_text_chunks || []) }, [task]);
+  // const [chunks, setChunks] = useState(task.result_text_chunks || []);
+  // useEffect(() => { setChunks(task.result_text_chunks || []) }, [task]);
+
+  const sessions = useStore((state) => state.sessions);
+  const setSessions = useStore((state) => state.setSessions);
+  const currentSessionIndex = useStore((state) => state.currentSessionIndex);
+  const currentSession = sessions[currentSessionIndex];
+
+  const [chunks, setChunks] = useState(currentSession.result_text_chunks || []);
+  useEffect(() => { setChunks(currentSession.result_text_chunks || []) }, [currentSession]);
 
   const innerContentHtml = renderToString(<>{
     chunks.map((chunk, idx) => {
@@ -65,32 +74,28 @@ const ResultView = () => {
   };
 
   const handleShowDiff = () => {
-    if (!chats || !chats[currentChatIndex]) return;
-    const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-    setDiffPreview(Diff.diffChars(updatedChats[currentChatIndex].task.original_result_text, assembleChunks(chunks)));
+    //CHAT2SESSION
+    setDiffPreview(Diff.diffChars(assembleChunks(currentSession.original_result_text_chunks), assembleChunks(chunks)));
     setIsShowDiffModalOpen(true);
   };
 
   const handleSaveModifiedResult = async () => {
-    if (!chats || !chats[currentChatIndex]) return;
-    const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-    const currentTask: TaskInterface = updatedChats[currentChatIndex].task;
-    currentTask.result_text = assembleChunks(chunks);
-    setDiffPreview(Diff.diffChars(currentTask.original_result_text, assembleChunks(chunks)));
-    // console.log(diffPreview);
-    setChats(updatedChats);
+    //CHAT2SESSION
+    // if (!chats || !chats[currentChatIndex]) return;
+    // const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
+    // const currentTask: TaskInterface = updatedChats[currentChatIndex].task;
+    // currentTask.result_text = assembleChunks(chunks);
+    // // console.log(diffPreview);
+    // setChats(updatedChats);
+
+    setDiffPreview(Diff.diffChars(assembleChunks(currentSession.original_result_text_chunks), assembleChunks(chunks)));
 
     // Update user dictionary
-
-    // const modified = diffPreview.some((part) => part.added || part.removed)
-    // const _newDictEntries: UserDictEntryInterface[] = modified ?
-    //   await extractPreference(currentTask.user_text, currentTask.original_result_text, assembleChunks(chunks)) : [];
-
-    const prefQueries = currentTask.original_result_text_chunks.map((orig_chunk) => {
-      const en_chunk = currentTask.user_text_chunks.find((en_chunk) => {
+    const prefQueries = currentSession.original_result_text_chunks.map((orig_chunk) => {
+      const en_chunk = currentSession.user_text_chunks.find((en_chunk) => {
         return en_chunk.chunk_num == orig_chunk.chunk_num
       });
-      const mod_chunk = currentTask.result_text_chunks.find((res_chunk) => {
+      const mod_chunk = currentSession.result_text_chunks.find((res_chunk) => {
         return res_chunk.chunk_num == orig_chunk.chunk_num
       });
       if (isUndefined(mod_chunk) || isUndefined(en_chunk)) return;
@@ -108,17 +113,17 @@ const ResultView = () => {
 
     const userDicts = useStore.getState().userDicts;
     const setUserDicts = useStore.getState().setUserDicts;
-    const updatedTask: TaskInterface = updatedChats[currentChatIndex].task;
+    // const updatedTask: TaskInterface = updatedChats[currentChatIndex].task;
     // console.log(userDicts, updatedTask);
 
     if (newDictEntries.length > 0) {
       const updatedDicts: UserDictInterface[] = JSON.parse(JSON.stringify(userDicts));
       newDictEntries.forEach((newEntry) => {
-        if (!updatedDicts[updatedTask.user_dict_index].entries.find((oldEntry) => {
+        if (!updatedDicts[currentSession.user_dict_index].entries.find((oldEntry) => {
           return (oldEntry.source == newEntry.source && oldEntry.target == newEntry.target)
         })) {
         // if not found
-          updatedDicts[updatedTask.user_dict_index].entries.push(newEntry);
+          updatedDicts[currentSession.user_dict_index].entries.push(newEntry);
         }
       });
       setUserDicts(updatedDicts);
@@ -159,10 +164,14 @@ const ResultView = () => {
     // console.groupEnd();
     // console.debug('newchunks', newChunks);
 
-    const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-    updatedChats[currentChatIndex].task.result_text_chunks = newChunks;
     setChunks(newChunks);
-    setChats(updatedChats);
+    // CHAT2SESSION
+    // const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
+    // updatedChats[currentChatIndex].task.result_text_chunks = newChunks;
+    // setChats(updatedChats);
+    const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
+    updatedSessions[currentSessionIndex].result_text_chunks = newChunks;
+    setSessions(updatedSessions);
   }
 
   // CSS Animation for the spinner

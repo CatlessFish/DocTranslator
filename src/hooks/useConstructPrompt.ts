@@ -1,5 +1,5 @@
 import { blankAssistentMessage } from "@constants/chat";
-import { MessageInterface, MessageChunkInterface, TaskInterface, ChatInterface } from "@type/chat";
+import { MessageInterface, MessageChunkInterface, TaskInterface, ChatInterface, SessionInterface } from "@type/chat";
 import { _defaultSystemMessage } from "@constants/chat";
 import useStore from "@store/store";
 import { UserDictEntryInterface, UserDictInterface, UserPromptInterface } from "@type/userpref";
@@ -11,31 +11,43 @@ const useConstructPrompt = () => {
     const currentChatIndex = useStore((state) => state.currentChatIndex);
     const setChats = useStore((state) => state.setChats);
 
+    const currentSessionIndex = useStore((state) => state.currentSessionIndex);
+    const setSessions = useStore((state) => state.setSessions);
+
     const constructPrompt = (): MessageChunkInterface[] => {
         const chats = useStore.getState().chats;
+        const sessions = useStore.getState().sessions;
         const userDicts = useStore.getState().userDicts;
         const userPrompts = useStore.getState().userPrompts;
         // console.log(JSON.stringify(userDicts));
         // console.log(JSON.stringify(userPrompts));
         let chunks: MessageChunkInterface[] = [];
-        if (!chats) return chunks;
-        const currTask = chats[currentChatIndex].task;
-        const userDict = (currTask.user_dict_index < userDicts.length && currTask.user_dict_index >= 0) ?
-            userDicts[currTask.user_dict_index] : userDicts[0];
+        // if (!chats) return chunks;
+        // const currTask = chats[currentChatIndex].task;
+        const currSession = sessions[currentSessionIndex];
+        const userDict = (currSession.user_dict_index < userDicts.length && currSession.user_dict_index >= 0) ?
+            userDicts[currSession.user_dict_index] : userDicts[0];
         // console.log(currTask, userDict);
-        const chunkedUserText: string[] = textTrunc(currTask.user_text);
+        const chunkedUserText: string[] = textTrunc(currSession.user_text);
         chunks = _constructPrompt(chunkedUserText, userDict, userPrompts);
 
         // Update task.chunks
-        const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-        if (currentChatIndex < updatedChats.length && currentChatIndex >= 0) {
-            updatedChats[currentChatIndex].task.message_chunks = chunks;
-            updatedChats[currentChatIndex].task.user_text_chunks = chunkedUserText.map((text, chunk_num) => {
-                return { chunk_num, text }
-            });
-            setChats(updatedChats);
-        }
+        // CHAT2SESSION
+        // const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
+        // if (currentChatIndex < updatedChats.length && currentChatIndex >= 0) {
+        //     updatedChats[currentChatIndex].task.message_chunks = chunks;
+        //     updatedChats[currentChatIndex].task.user_text_chunks = chunkedUserText.map((text, chunk_num) => {
+        //         return { chunk_num, text }
+        //     });
+        //     setChats(updatedChats);
+        // }
         // console.log(updatedChats[currentChatIndex].task);
+        const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
+        updatedSessions[currentSessionIndex].message_chunks = chunks;
+        updatedSessions[currentSessionIndex].user_text_chunks = chunkedUserText.map((text, chunk_num) => {
+            return { chunk_num, text }
+        });
+        setSessions(updatedSessions);
         return chunks;
     };
 

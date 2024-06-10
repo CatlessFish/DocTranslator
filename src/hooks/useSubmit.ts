@@ -1,7 +1,7 @@
 import React from 'react';
 import useStore from '@store/store';
 import { useTranslation } from 'react-i18next';
-import { ChatInterface, MessageInterface, TaskInterface } from '@type/chat';
+import { ChatInterface, MessageInterface, TaskInterface, SessionInterface } from '@type/chat';
 import { getChatCompletion, getChatCompletionStream } from '@api/api';
 import { parseEventSource } from '@api/helper';
 import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
@@ -20,27 +20,29 @@ const useSubmit = () => {
   const apiKey = useStore((state) => state.apiKey);
   const setGenerating = useStore((state) => state.setGenerating);
   const generating = useStore((state) => state.generating);
-  const currentChatIndex = useStore((state) => state.currentChatIndex);
-  const setChats = useStore((state) => state.setChats);
   const { constructPrompt, doContextAdjust } = useConstructPrompt();
   const { syncToServer } = useBackup();
+  const setChats = useStore((state) => state.setChats);
+  const currentChatIndex = useStore((state) => state.currentChatIndex);
+
+  const setSessions = useStore((state) => state.setSessions);
+  const currentSessionIndex = useStore((state) => state.currentSessionIndex);
 
   const handleSubmit = async () => {
     const dictBackupQuery = syncToServer('userdict', { dict: useStore.getState().userDicts[0] });
     const promptBackupQuery = syncToServer('userprompt', { prompts: useStore.getState().userPrompts });
     const chats = useStore.getState().chats;
+    const sessions = useStore.getState().sessions;
     if (generating || !chats) return;
     // console.debug('Submitting..');
 
-    const currTask = chats[currentChatIndex].task;
+    const currentSession = sessions[currentSessionIndex];
     // console.log(currTask.user_text);
-    currTask.result_text = '';
-    currTask.original_result_text = '';
-    currTask.message_chunks = [];
-    currTask.result_text_chunks = [];
-    currTask.original_result_text_chunks = [];
-    const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-    setChats(updatedChats);
+    currentSession.message_chunks = [];
+    currentSession.result_text_chunks = [];
+    currentSession.original_result_text_chunks = [];
+    const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
+    setSessions(updatedSessions);
 
     // This should update task.messageChunks, so the above changes must be saved first
     const constructedMessagesChunks = constructPrompt();
@@ -89,7 +91,7 @@ const useSubmit = () => {
             useStore.getState().apiEndpoint,
             messages,
             {
-              ...chats[currentChatIndex].config,
+              ...currentSession.config,
               temperature: 0.1,
               response_format: { "type": "json_object" },
             },
@@ -136,15 +138,21 @@ const useSubmit = () => {
         // console.debug(text.split('\n').length);
 
         // Update task
-        const updatedChats: ChatInterface[] = JSON.parse(
-          JSON.stringify(useStore.getState().chats)
-        );
-        const updatedTask = updatedChats[currentChatIndex].task;
-        updatedTask.result_text += (text + '\n\n');
-        updatedTask.result_text_chunks.push({ chunk_num: i, text: text + '\n\n' });
-        updatedTask.original_result_text += (text + '\n\n');
-        updatedTask.original_result_text_chunks.push({ chunk_num: i, text: text + '\n\n' });
-        setChats(updatedChats);
+        // CHAT2SESSION
+        // const updatedChats: ChatInterface[] = JSON.parse(
+        //   JSON.stringify(useStore.getState().chats)
+        // );
+        // const updatedTask = updatedChats[currentChatIndex].task;
+        // updatedTask.result_text += (text + '\n\n');
+        // updatedTask.result_text_chunks.push({ chunk_num: i, text: text + '\n\n' });
+        // updatedTask.original_result_text += (text + '\n\n');
+        // updatedTask.original_result_text_chunks.push({ chunk_num: i, text: text + '\n\n' });
+        // setChats(updatedChats);
+        const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
+        const currSession = updatedSessions[currentSessionIndex];
+        currSession.result_text_chunks.push({ chunk_num: i, text: text + '\n\n' });
+        currSession.original_result_text_chunks.push({ chunk_num: i, text: text + '\n\n' });
+        setSessions(updatedSessions);
 
         // Feature: use context
         const completionAPI = (msgs: MessageInterface[]) => {
@@ -152,7 +160,7 @@ const useSubmit = () => {
             useStore.getState().apiEndpoint,
             msgs,
             {
-              ...chats[currentChatIndex].config,
+              ...currentSession.config,
               temperature: 0.1,
               response_format: { "type": "json_object" },
             },
@@ -169,7 +177,8 @@ const useSubmit = () => {
         }
 
         // Auto Backup
-        const chatBackupQuery = syncToServer('chat', { chat: updatedChats[currentChatIndex] });
+        // const chatBackupQuery = syncToServer('session', { session: currSession }); // Does it work?
+        const chatBackupQuery = Promise.resolve();
         await Promise.all([dictBackupQuery, promptBackupQuery, chatBackupQuery]);
       } // end for
     } catch (e: unknown) {

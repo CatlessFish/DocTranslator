@@ -3,7 +3,7 @@ import React from 'react';
 import useStore from '@store/store';
 import PlusIcon from '@icon/PlusIcon';
 import MenuIcon from '@icon/MenuIcon';
-import useAddChat from '@hooks/useAddChat';
+import useAddSession from '@hooks/useAddSession';
 
 const MobileBar = () => {
   const generating = useStore((state) => state.generating);
@@ -17,7 +17,7 @@ const MobileBar = () => {
       : 'New Chat'
   );
 
-  const addChat = useAddChat();
+  const addChat = useAddSession();
 
   return (
     <div className='sticky top-0 left-0 w-full z-50 flex items-center border-b border-white/20 bg-gray-800 pl-1 pt-1 text-gray-200 sm:pl-3 md:hidden'>

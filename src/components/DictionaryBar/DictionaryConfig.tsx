@@ -1,6 +1,6 @@
 import useStore from "@store/store";
 import { ChangeEvent, useEffect, useState } from "react";
-import { ChatInterface } from "@type/chat";
+import { ChatInterface, SessionInterface } from "@type/chat";
 import { UserDictEntryInterface, UserDictInterface } from "@type/userpref";
 import defaultUserDicts from "@constants/userdict";
 import EditIcon from "@icon/EditIcon";
@@ -9,18 +9,24 @@ import DeleteIcon from "@icon/DeleteIcon";
 import PlusIcon from "@icon/PlusIcon";
 
 const DictionaryConfig = () => {
-    const currentChatIndex = useStore((state) => state.currentChatIndex);
-    const chats = useStore((state) => state.chats);
-    const setChats = useStore((state) => state.setChats);
-    if (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) return <></>;
+    const sessions = useStore((state) => state.sessions);
+    const setSessions = useStore((state) => state.setSessions);
+    const currentSessionIndex = useStore((state) => state.currentSessionIndex);
+    const currentSession = sessions[currentSessionIndex];
 
-    const currentDictIndex = chats[currentChatIndex].task.user_dict_index;
+    // CHAT2SESSION
+    // const currentChatIndex = useStore((state) => state.currentChatIndex);
+    // const chats = useStore((state) => state.chats);
+    // const setChats = useStore((state) => state.setChats);
+    // if (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) return <></>;
+
+    const currentDictIndex = currentSession.user_dict_index;
     const [_currDictIndex, __setCurrDictIndex] = useState<number>(currentDictIndex);
     const _setCurrDictIndex = (newIndex: number) => {
         __setCurrDictIndex(newIndex);
-        const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
-        updatedChats[currentChatIndex].task.user_dict_index = newIndex;
-        setChats(updatedChats);
+        const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
+        updatedSessions[currentSessionIndex].user_dict_index = newIndex;
+        setSessions(updatedSessions);
     };
 
     // from global storage

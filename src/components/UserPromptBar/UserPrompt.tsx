@@ -11,13 +11,8 @@ const UserPromptBar = () => {
     const [inputValue, setInputValue] = useState<string>('');
     const [showPromptPopup, setShowPromptPopup] = useState<boolean>(false);
 
-    const currentChatIndex = useStore((state) => state.currentChatIndex);
-    const chats = useStore((state) => state.chats) || [];
-
     const userPrompts = useStore((state) => state.userPrompts);
     const setUserPrompts = useStore((state) => state.setUserPrompts);
-
-    const { syncToServer, syncFromServer } = useBackup();
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value)

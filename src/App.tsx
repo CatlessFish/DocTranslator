@@ -12,10 +12,13 @@ import ApiPopup from '@components/ApiPopup';
 import ApiMenu from '@components/ApiMenu';
 import Pages from '@components/Pages';
 import { ProfileMenu } from '@components/ProfileMenu';
+import { ChatToSession, generateDefaultSession } from '@constants/chat';
 
 function App() {
   const initialiseNewChat = useInitialiseNewChat();
   const setChats = useStore((state) => state.setChats);
+  const setSessions = useStore((state) => state.setSessions);
+  const setCurrentSessionIndex = useStore((state) => state.setCurrentSessionIndex);
   const setTheme = useStore((state) => state.setTheme);
   const setApiKey = useStore((state) => state.setApiKey);
   const setMainPagenum = useStore((state) => state.setMainPagenum);
@@ -29,22 +32,21 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const chats = useStore.getState().chats;
-    const currentChatIndex = useStore.getState().currentChatIndex;
-    if (!chats || chats.length === 0) {
-      initialiseNewChat();
-    }
-    if (
-      chats &&
-      !(currentChatIndex >= 0 && currentChatIndex < chats.length)
-    ) {
-      setCurrentChatIndex(0);
-    }
+    setMainPagenum(0);
   }, []);
 
   useEffect(() => {
-    setMainPagenum(0);
-  }, []);
+    const chats = useStore.getState().chats;
+    if (chats && chats.length) {
+      setSessions(chats.map((chat) => ChatToSession(chat)));
+      setChats([]);
+    }
+    const sessions = useStore.getState().sessions;
+    if (!sessions || sessions.length === 0) {
+      setSessions([generateDefaultSession()]);
+    }
+    setCurrentSessionIndex(0);
+  }, [])
 
   return (
     <div className='overflow-hidden w-full h-full relative'>

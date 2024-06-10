@@ -1,26 +1,33 @@
 import { syncDown, syncUp, userLogin } from "@api/backendApi";
 import { _defaultChatConfig } from "@constants/chat";
 import useStore from "@store/store";
-import { ChatInterface } from "@type/chat";
+import { ChatInterface, SessionInterface } from "@type/chat";
 import { UserDictInterface, UserPromptInterface } from "@type/userpref";
 
-export type SyncType = 'chat' | 'userdict' | 'userprompt'
+export type SyncType = 'chat' | 'userdict' | 'userprompt' | 'session';
 
 const useBackup = () => {
     const currentChatIndex = useStore((state) => state.currentChatIndex);
     const chats = useStore((state) => state.chats);
     const setChats = useStore((state) => state.setChats);
-    const currentDictIndex = (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) ?
-        0 : chats[currentChatIndex].task.user_dict_index;
+    // const currentDictIndex = (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) ?
+    //     0 : chats[currentChatIndex].task.user_dict_index;
+
+    const sessions = useStore((state) => state.sessions);
+    const setSessions = useStore((state) => state.setSessions);
+    const currentSessionIndex = useStore((state) => state.currentSessionIndex);
+    const currentDictIndex = sessions[currentSessionIndex].user_dict_index;
     const setUserDicts = useStore((state) => state.setUserDicts);
     const setUserPromtps = useStore((state) => state.setUserPrompts);
 
     const syncToServer = async (syncType: SyncType, {
         chat,
+        session,
         dict,
         prompts,
     }: {
         chat?: ChatInterface,
+            session?: SessionInterface,
         dict?: UserDictInterface,
         prompts?: UserPromptInterface[],
     }) => {
@@ -32,6 +39,9 @@ const useBackup = () => {
         switch (syncType) {
             case 'chat':
                 data.chat = chat;
+                break;
+            case 'session':
+                data.session = session;
                 break;
             case 'userdict':
                 data.userdict = dict;
@@ -67,6 +77,15 @@ const useBackup = () => {
                         updatedChats.unshift(c);
                 });
                 setChats(updatedChats);
+                break;
+            case 'session':
+                const sessions: SessionInterface[] = syncResult.data;
+                const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
+                const existing_session_ids = updatedSessions.map((s) => s.id);
+                sessions.forEach((s) => {
+
+                });
+                setSessions(sessions);
                 break;
             case 'userdict':
                 const dict: UserDictInterface = syncResult.data;

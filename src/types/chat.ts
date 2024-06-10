@@ -17,26 +17,44 @@ export interface TextChunkInterface {
 }
 
 export interface TaskInterface {
-  user_text: string;
-  result_text: string;
-  original_result_text: string;
+  user_text: string; // keep this
+  result_text: string; // safe to remove
+  original_result_text: string; // safe to remove
   user_text_chunks: TextChunkInterface[];
   result_text_chunks: TextChunkInterface[];
   original_result_text_chunks: TextChunkInterface[];
 
   user_dict_index: number;
-  message_chunks: MessageChunkInterface[];
+  message_chunks: MessageChunkInterface[]; // keep this
 }
 
 export interface ChatInterface {
   id: string;
   title: string;
   folder?: string;
-  messages: MessageInterface[];
+  messages: MessageInterface[]; // ok to remove
   config: ConfigInterface;
   titleSet: boolean;
   task: TaskInterface;
 }
+
+export interface SessionInterface {
+  id: string;
+  title: string;
+  folder?: string;
+  config: ConfigInterface;
+
+  user_text: string;
+  user_text_chunks: TextChunkInterface[];
+  result_text_chunks: TextChunkInterface[];
+  original_result_text_chunks: TextChunkInterface[];
+
+  user_prompt_set_index?: number;
+  user_dict_index: number;
+
+  message_chunks: MessageChunkInterface[];
+}
+
 
 export interface ConfigInterface {
   model: ModelOptions;
@@ -57,6 +75,9 @@ export interface ChatHistoryInterface {
 export interface ChatHistoryFolderInterface {
   [folderId: string]: ChatHistoryInterface[];
 }
+
+export type SessionHistoryInterface = ChatHistoryInterface;
+export type SessionHistoryFolderInterface = ChatHistoryFolderInterface;
 
 export interface FolderCollection {
   [folderId: string]: Folder;

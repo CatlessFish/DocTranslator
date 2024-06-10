@@ -10,11 +10,6 @@ import PlusIcon from "@icon/PlusIcon";
 import useBackup from "@hooks/useBackup";
 
 const UserPromptConfig = () => {
-    const currentChatIndex = useStore((state) => state.currentChatIndex);
-    const chats = useStore((state) => state.chats);
-    const setChats = useStore((state) => state.setChats);
-    if (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) return <></>;
-
     // from global storage
     const userDicts = useStore((state) => state.userDicts);
     const setUserDicts = useStore((state) => state.setUserDicts);

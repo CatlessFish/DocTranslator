@@ -4,7 +4,7 @@ import useStore from '@store/store';
 
 import useSubmit from '@hooks/useSubmit';
 
-import { ChatInterface, MessageInterface } from '@type/chat';
+import { ChatInterface, MessageInterface, SessionInterface } from '@type/chat';
 
 import PopupModal from '@components/PopupModal';
 import TokenCount from '@components/TokenCount';
@@ -16,14 +16,14 @@ import { parsePatch } from 'diff';
 
 const EditView = ({
   content,
-  sticky,
 }: {
     content: string;
-  sticky?: boolean;
-}) => {
-  const inputRole = useStore((state) => state.inputRole);
+  }) => {
+  // CHAT2SESSION
   const setChats = useStore((state) => state.setChats);
   const currentChatIndex = useStore((state) => state.currentChatIndex);
+  const setSessions = useStore((state) => state.setSessions);
+  const currentSessionIndex = useStore((state) => state.currentSessionIndex);
   const { constructPrompt } = useConstructPrompt();
 
   const [_content, _setContent] = useState<string>(content);
@@ -33,10 +33,6 @@ const EditView = ({
 
   const { t } = useTranslation();
 
-  const resetTextAreaHeight = () => {
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isMobile =
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|playbook|silk/i.test(
@@ -45,30 +41,30 @@ const EditView = ({
 
     if (e.key === 'Enter' && !isMobile && !e.nativeEvent.isComposing) {
       const enterToSubmit = useStore.getState().enterToSubmit;
-
       if (e.ctrlKey && e.shiftKey) {
         e.preventDefault();
-        // handleGenerate();
-        // resetTextAreaHeight();
       } else if (
         (enterToSubmit && !e.shiftKey) ||
         (!enterToSubmit && (e.ctrlKey || e.shiftKey))
       ) {
         e.preventDefault();
-        // handleGenerate();
-        // resetTextAreaHeight();
       }
     }
   };
 
   const handlePreview = () => {
     if (useStore.getState().generating) return;
-    const updatedChats: ChatInterface[] = JSON.parse(
-      JSON.stringify(useStore.getState().chats)
-    );
-    const updatedTask = updatedChats[currentChatIndex].task;
-    updatedTask.user_text = _content;
-    setChats(updatedChats);
+    // CHAT2SESSION
+    // const updatedChats: ChatInterface[] = JSON.parse(
+    //   JSON.stringify(useStore.getState().chats)
+    // );
+    // const updatedTask = updatedChats[currentChatIndex].task;
+    // updatedTask.user_text = _content;
+    // setChats(updatedChats);
+    const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
+    updatedSessions[currentSessionIndex].user_text = _content;
+    setSessions(updatedSessions);
+
     const messageChunks = constructPrompt();
     // console.log('[handlePreview] Updated messages: ', updatedChats[currentChatIndex].messages);
     setPromptPreview(messageChunks.flat());
@@ -78,10 +74,14 @@ const EditView = ({
   const { handleSubmit } = useSubmit();
   const handleGenerate = () => {
     if (_content == '' || useStore.getState().generating) return;
-    const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(useStore.getState().chats));
-    const updatedTask = updatedChats[currentChatIndex].task;
-    updatedTask.user_text = _content;
-    setChats(updatedChats);
+    // CHAT2SESSION
+    // const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(useStore.getState().chats));
+    // const updatedTask = updatedChats[currentChatIndex].task;
+    // updatedTask.user_text = _content;
+    // setChats(updatedChats);
+    const updatedSessions: SessionInterface[] = JSON.parse(JSON.stringify(useStore.getState().sessions));
+    updatedSessions[currentSessionIndex].user_text = _content;
+    setSessions(updatedSessions);
     handleSubmit();
   };
 

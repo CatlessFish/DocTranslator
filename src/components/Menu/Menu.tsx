@@ -4,7 +4,7 @@ import useStore from '@store/store';
 
 import NewChat from './NewChat';
 import NewFolder from './NewFolder';
-import ChatHistoryList from './ChatHistoryList';
+import SessionHistoryList from './SessionHistoryList';
 import MenuOptions from './MenuOptions';
 
 import CrossIcon2 from '@icon/CrossIcon2';
@@ -43,7 +43,8 @@ const Menu = () => {
                 <NewChat />
                 <NewFolder />
               </div>
-              <ChatHistoryList />
+              {/* <ChatHistoryList /> */}
+              <SessionHistoryList />
               <MenuOptions />
             </nav>
           </div>

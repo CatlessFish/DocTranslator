@@ -1,7 +1,7 @@
 import React from 'react';
 import useStore from '@store/store';
 import { MessageInterface } from '@type/chat';
-import { generateDefaultChat } from '@constants/chat';
+import { generateDefaultChat, generateDefaultSession } from '@constants/chat';
 
 const useInitialiseNewChat = () => {
   const setChats = useStore((state) => state.setChats);
@@ -14,5 +14,17 @@ const useInitialiseNewChat = () => {
 
   return initialiseNewChat;
 };
+
+export const useInitialiseNewSession = () => {
+  const setSessions = useStore((state) => state.setSessions);
+  const setCurrentSessionIndex = useStore((state) => state.setCurrentSessionIndex);
+
+  const initialiseNewSession = () => {
+    setSessions([generateDefaultSession()]);
+    setCurrentSessionIndex(0);
+  };
+
+  return initialiseNewSession;
+}
 
 export default useInitialiseNewChat;

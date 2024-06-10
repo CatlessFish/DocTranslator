@@ -4,11 +4,11 @@ import useStore from '@store/store';
 
 import PlusIcon from '@icon/PlusIcon';
 
-import useAddChat from '@hooks/useAddChat';
+import useAddSession from '@hooks/useAddSession';
 
 const NewChat = ({ folder }: { folder?: string }) => {
   const { t } = useTranslation();
-  const addChat = useAddChat();
+  const addChat = useAddSession();
   const generating = useStore((state) => state.generating);
 
   return (

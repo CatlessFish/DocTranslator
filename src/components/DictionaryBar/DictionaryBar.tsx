@@ -14,9 +14,17 @@ const DictionaryBar = () => {
     const [inputValue, setInputValue] = useState<string>('');
     const [showDictDropup, setShowDictDropup] = useState<boolean>(false);
 
-    const currentChatIndex = useStore((state) => state.currentChatIndex);
-    const chats = useStore((state) => state.chats) || [];
-    const currentDictIndex = chats[currentChatIndex].task.user_dict_index;
+    const sessions = useStore((state) => state.sessions);
+    const setSessions = useStore((state) => state.setSessions);
+    const currentSessionIndex = useStore((state) => state.currentSessionIndex);
+    const currentSession = sessions[currentSessionIndex];
+
+    // CHAT2SESSION
+    // const currentChatIndex = useStore((state) => state.currentChatIndex);
+    // const chats = useStore((state) => state.chats) || [];
+    // const currentDictIndex = chats[currentChatIndex].task.user_dict_index;
+
+    const currentDictIndex = currentSession.user_dict_index;
     const userDicts = useStore((state) => state.userDicts);
     const setUserDicts = useStore((state) => state.setUserDicts);
 

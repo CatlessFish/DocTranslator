@@ -46,6 +46,8 @@ export type StoreSlice<T> = (
 export const createPartializedState = (state: StoreState) => ({
   chats: state.chats,
   currentChatIndex: state.currentChatIndex,
+  sessions: state.sessions,
+  currentSessionIndex: state.currentSessionIndex,
   apiKey: state.apiKey,
   apiEndpoint: state.apiEndpoint,
   theme: state.theme,

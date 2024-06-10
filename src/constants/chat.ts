@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ChatInterface, ConfigInterface, MessageInterface, ModelOptions, TaskInterface } from '@type/chat';
+import { ChatInterface, ConfigInterface, MessageInterface, ModelOptions, SessionInterface, TaskInterface } from '@type/chat';
 import { UserDictInterface } from '@type/userpref';
 import useStore from '@store/store';
 
@@ -164,6 +164,45 @@ export const generateDefaultChat = (
   folder,
 });
 
+export const generateDefaultSession = (
+  title?: string,
+  folder?: string,
+): SessionInterface => ({
+  id: uuidv4(),
+  title: title ? title : 'New Session',
+  folder,
+  config: {
+    model: 'gpt-3.5-turbo',
+    max_tokens: 2000,
+    temperature: 0.1,
+    presence_penalty: 0,
+    top_p: 1,
+    frequency_penalty: 0, // Is this default?
+  },
+
+  user_text: '',
+  user_text_chunks: [],
+  result_text_chunks: [],
+  original_result_text_chunks: [],
+
+  user_dict_index: 0,
+  message_chunks: [],
+});
+
+export const ChatToSession = (chat: ChatInterface): SessionInterface => ({
+  id: chat.id,
+  title: chat.title,
+  folder: chat.folder,
+  config: chat.config,
+
+  user_text: chat.task.user_text,
+  user_text_chunks: chat.task.user_text_chunks,
+  result_text_chunks: chat.task.result_text_chunks,
+  original_result_text_chunks: chat.task.original_result_text_chunks,
+
+  user_dict_index: chat.task.user_dict_index,
+  message_chunks: chat.task.message_chunks,
+});
 
 export const codeLanguageSubset = [
   'python',

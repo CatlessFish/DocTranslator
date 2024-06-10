@@ -4,20 +4,24 @@ import { generateDefaultTask } from "@constants/chat";
 import ResultView from "./Message/View/ResultView";
 
 const ChatContentEditor = () => {
-    const task = useStore((state) =>
-        state.chats &&
-            state.chats.length > 0 &&
-            state.currentChatIndex >= 0 &&
-            state.currentChatIndex < state.chats.length
-            ? state.chats[state.currentChatIndex].task
-            : generateDefaultTask() // Should not happen?
-    );
+    // CHAT2SESSION
+    // const task = useStore((state) =>
+    //     state.chats &&
+    //         state.chats.length > 0 &&
+    //         state.currentChatIndex >= 0 &&
+    //         state.currentChatIndex < state.chats.length
+    //         ? state.chats[state.currentChatIndex].task
+    //         : generateDefaultTask() // Should not happen?
+    // );
+    const sessions = useStore((state) => state.sessions);
+    const currentSessionIndex = useStore((state) => state.currentSessionIndex);
+    const currentSession = sessions[currentSessionIndex];
     const hideSideMenu = useStore((state) => state.hideSideMenu);
 
     return (
         <div className='flex items-center text-sm dark:bg-gray-800 w-full h-full'>
             <TextAreaStyleDecorator>
-                <EditView content={task.user_text} />
+                <EditView content={currentSession.user_text} />
             </TextAreaStyleDecorator>
             <TextAreaStyleDecorator>
                 <ResultView />
